@@ -1,15 +1,39 @@
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QWidget, QGraphicsDropShadowEffect
-from qfluentwidgets import FluentIcon, setFont, InfoBarIcon
+from PyQt5.QtWidgets import QWidget,QTextEdit
 from .tool import *
 
 from view.Ui_Task_Interface import Ui_Task_Interface
 
 import os, threading
-from maa.toolkit import Toolkit,NotificationHandler
-from maa.context import Context
-from maa.custom_action import CustomAction
-from maa.custom_recognition import CustomRecognition
+from datetime import datetime  
+from maa.toolkit import Toolkit
+from maa.notification_handler import NotificationHandler, NotificationType
+
+class MyNotificationHandler(NotificationHandler):
+    def __init__(self, TaskOutput_Text: QTextEdit):  
+        super().__init__()  
+        self.TaskOutput_Text = TaskOutput_Text 
+
+    def on_controller_action(
+        self,
+        noti_type: NotificationType,
+        detail: NotificationHandler.ControllerActionDetail,
+    ):
+        now_time = datetime.now().strftime("%H:%M:%S") 
+        if noti_type.value == 1:
+            self.TaskOutput_Text.append(f"{now_time}"+" 连接中")
+        elif noti_type.value == 2:
+            self.TaskOutput_Text.append(f"{now_time}"+" 连接成功")
+        elif noti_type.value == 3:
+            self.TaskOutput_Text.append(f"{now_time}"+" 连接失败")
+        else:
+            self.TaskOutput_Text.append(f"{now_time}"+" 连接状态未知")
+
+    def on_tasker_task(
+        self, noti_type: NotificationType, detail: NotificationHandler.TaskerTaskDetail
+            ):
+        now_time = datetime.now().strftime("%H:%M:%S") 
+        status_map = {  0: "未知",  1: "运行中",  2: "成功",  3: "失败"  }  
+        self.TaskOutput_Text.append(f"{now_time}"+" "+f"{detail.entry}"+" "+f"{status_map[noti_type.value]}")
 
 class TaskInterface(Ui_Task_Interface, QWidget):
 
@@ -41,6 +65,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.TaskName_Title_2.hide()
         self.TaskName_Title_3.hide()
         self.TaskName_Title_4.hide()
+        self.Topic_Text.hide()
         # 绑定信号
         self.AddTask_Button.clicked.connect(self.Add_Task)
         self.Delete_Button.clicked.connect(self.Delete_Task)
@@ -53,11 +78,14 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.StartTask_Button.clicked.connect(self.Start_Up)
 
     def Start_Up(self):
+        self.TaskOutput_Text.clear()
+
         threading.Thread(target=self._Start_Up, daemon=True).start()
 
-    def _Start_Up(self):
 
-        Toolkit.pi_run_cli(os.getcwd(), os.getcwd(), True)
+    def _Start_Up(self):
+        notification_handler = MyNotificationHandler(self.TaskOutput_Text)  
+        Toolkit.pi_run_cli(os.getcwd(), os.getcwd(), True, notification_handler=notification_handler)
 
     def Add_Task(self):
         # 添加任务

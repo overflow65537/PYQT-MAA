@@ -450,3 +450,4 @@ config/
 resource/
 *.ui
 interface.json
+!resource\base\model\
