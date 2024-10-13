@@ -10,11 +10,11 @@ def Read_Config(paths):
             MAA_data = json.load(MAA_Config)
             return MAA_data
     
-def Save_Config(paths,date):
+def Save_Config(paths,data):
      # 打开json并写入data内数据
     if os.path.exists(paths):
         with open(paths,"w",encoding='utf-8') as MAA_Config:
-            json.dump(date,MAA_Config,indent=4,ensure_ascii=False)
+            json.dump(data,MAA_Config,indent=4,ensure_ascii=False)
 
 def gui_init(resource_Path,maa_pi_config_Path,interface_Path):
     if not os.path.exists(resource_Path):

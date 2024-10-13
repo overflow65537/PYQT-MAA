@@ -1,6 +1,7 @@
-from PyQt6.QtWidgets import QSizePolicy, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout
-from qfluentwidgets import PushButton, BodyLabel, ComboBox, ListWidget, TextEdit
-from app.view.UI_Task_Interface import Ui_Task_Interface
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
+from PyQt6.QtWidgets import QWidget
+from qfluentwidgets import InfoBar, InfoBarPosition, TextEdit
+from app.view.UI_task_interface import Ui_Task_Interface
 
 from app.utils.tool import *
 import os, threading
@@ -8,10 +9,52 @@ from datetime import datetime
 from maa.toolkit import Toolkit
 from maa.notification_handler import NotificationHandler, NotificationType
 
+class AutoDetectADBSignal(QObject):  
+# 检测ADB任务的信号,传回list
+    adb_detected = pyqtSignal(list) 
+
+class callback(QObject):
+    callback_sig = pyqtSignal(str)
+    
+class AutoDetectADBThread(QThread):  
+    def __init__(self, parent=None):  
+        super(AutoDetectADBThread, self).__init__(parent)  
+        self.signal = AutoDetectADBSignal()  # 创建信号对象  
+  
+    def run(self):  
+        emulator_result = []
+        emulator = Read_Config(os.path.join(os.getcwd(),"app","config","emulator.json"))
+        for app in emulator:
+            process_path = find_process_by_name(app["exe_name"])
+            
+            if process_path:
+                # 判断程序是否正在运行,是进行下一步,否则放弃
+                info_dict = {"exe_path":process_path,"may_path":app["may_path"]}
+                ADB_path = find_existing_file(info_dict)
+                if ADB_path:
+                    
+                    # 判断ADB地址是否存在,是进行下一步,否则放弃
+                    port_data = check_port(app["port"])
+                    if port_data:
+                        # 判断端口是否存在,是则组合字典,否则放弃
+                        emulator_result.extend([{"name":app["name"],"path":ADB_path,"port": item} for item in port_data])
+        
+        if emulator_result:
+            processed_list = [] 
+            for i in emulator_result:
+                processed_s = i["name"]
+                processed_list.append(processed_s)
+            self.signal.adb_detected.emit(processed_list)
+        else:
+            None_ADB_data = []
+            self.signal.adb_detected.emit(None_ADB_data)
+
+              
+
 class MyNotificationHandler(NotificationHandler):
-    def __init__(self, TaskOutput_Text: TextEdit):  
+    def __init__(self, TaskOutput_Text : TextEdit):  
         super().__init__()  
-        self.TaskOutput_Text = TaskOutput_Text 
+        self.TaskOutput_Text = TaskOutput_Text
 
     def on_controller_action(
         self,
@@ -40,8 +83,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setupUi(self)
-        # 初始化主窗口
-
+        
         # 资源文件位置
         global interface_Path 
         global maa_pi_config_Path
@@ -49,17 +91,11 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         interface_Path = os.path.join(os.getcwd(),"interface.json")
         maa_pi_config_Path = os.path.join(os.getcwd(),"config","maa_pi_config.json")
         resource_Path = os.path.join(os.getcwd(),"resource")
+        # 初次启动
+        self.First_Start(interface_Path, maa_pi_config_Path, resource_Path)
 
-        #获取初始数值
-        return_init = gui_init(resource_Path,maa_pi_config_Path,interface_Path)
-        
-        # 填充数据至组件
-        self.Task_List.addItems(Get_Values_list_Option(maa_pi_config_Path,"task"))
-        self.Resource_Combox.addItems(Get_Values_list(interface_Path,key1 = "resource"))
-        self.Resource_Combox.setCurrentIndex(return_init["init_Resource_Type"])
-        self.Control_Combox.addItems(Get_Values_list(interface_Path,key1 = "controller"))
-        self.Control_Combox.setCurrentIndex(return_init["init_Controller_Type"])
-        self.SelectTask_Combox_1.addItems(Get_Values_list(interface_Path,key1 = "task"))
+        self._auto_detect_adb_thread = AutoDetectADBThread(self)  
+    
         
         # 隐藏任务选项
         self.SelectTask_Combox_2.hide()
@@ -73,6 +109,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.Topic_Text.hide()
         
         # 绑定信号
+        self._auto_detect_adb_thread.signal.adb_detected.connect(self.On_ADB_Detected)
         self.AddTask_Button.clicked.connect(self.Add_Task)
         self.Delete_Button.clicked.connect(self.Delete_Task)
         self.MoveUp_Button.clicked.connect(self.Move_Up)
@@ -80,21 +117,53 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.SelectTask_Combox_1.activated.connect(self.Add_Select_Task_More_Select)
         self.Resource_Combox.activated.connect(self.Save_Resource)
         self.Control_Combox.activated.connect(self.Save_Controller)
-        self.AutoDetect_Button.clicked.connect(self.Auto_Detect_ADB)
+        self.AutoDetect_Button.clicked.connect(self.Start_ADB_Detection)
         self.S2_Button.clicked.connect(self.Start_Up)
 
+    def First_Start(self, interface_Path, maa_pi_config_Path, resource_Path):
+        # 资源文件和配置文件全存在
+        if os.path.exists(resource_Path) and os.path.exists(interface_Path) and os.path.exists(maa_pi_config_Path):
+            # 填充数据至组件并设置初始值
+            self.Task_List.addItems(Get_Values_list_Option(maa_pi_config_Path,"task"))
+            self.Resource_Combox.addItems(Get_Values_list(interface_Path,key1 = "resource"))
+            self.Control_Combox.addItems(Get_Values_list(interface_Path,key1 = "controller"))
+            self.SelectTask_Combox_1.addItems(Get_Values_list(interface_Path,key1 = "task"))
+            return_init = gui_init(resource_Path,maa_pi_config_Path,interface_Path)
+            self.Resource_Combox.setCurrentIndex(return_init["init_Resource_Type"])
+            self.Control_Combox.setCurrentIndex(return_init["init_Controller_Type"])
+
+        # 配置文件不在
+        elif os.path.exists(resource_Path) and os.path.exists(interface_Path) and not(os.path.exists(maa_pi_config_Path)):
+            # 填充数据至组件
+            self.Resource_Combox.addItems(Get_Values_list(interface_Path,key1 = "resource"))
+            self.Control_Combox.addItems(Get_Values_list(interface_Path,key1 = "controller"))
+            self.SelectTask_Combox_1.addItems(Get_Values_list(interface_Path,key1 = "task"))
+        
+        # 全不在
+        else:
+            InfoBar.error(
+            title='错误',
+            content="未检测到资源文件",
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_RIGHT,
+            duration=-1, 
+            parent=self
+        )
+            
+            
     def Start_Up(self):
         self.TaskOutput_Text.clear()
-        notification_handler = MyNotificationHandler(self.TaskOutput_Text) 
-        Toolkit.pi_run_cli(os.getcwd(), os.getcwd(), True,notification_handler)
+        threading.Thread(target=self._Start_Up, daemon=True).start()
 
 
     def _Start_Up(self):
-        notification_handler = MyNotificationHandler(self.TaskOutput_Text) 
+        # notification_handler = MyNotificationHandler(callback.callback_sig) 
+        notification_handler = MyNotificationHandler(self.TaskOutput_Text)
         Toolkit.pi_run_cli(os.getcwd(), os.getcwd(), True, notification_handler=notification_handler)
 
     def Add_Task(self):
-        # 添加任务
+    # 添加任务
         Option = []
         Select_Target = self.SelectTask_Combox_1.currentText()
         MAA_Pi_Config = Read_Config(interface_Path)
@@ -130,7 +199,15 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         try:
             del Task_List[Select_Target]
         except IndexError:
-            pass
+            InfoBar.error(
+            title='错误',
+            content="没有任务可以被删除",
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_RIGHT,
+            duration=2000,
+            parent=self
+        )
         else:
             MAA_Pi_Config = Read_Config(maa_pi_config_Path)
             del MAA_Pi_Config["task"]
@@ -146,7 +223,15 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         
         Select_Target = self.Task_List.currentRow()
         if Select_Target == 0:
-            pass
+            InfoBar.error(
+            title='错误',
+            content="已经是首位任务",
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_RIGHT,
+            duration=2000,
+            parent=self
+        )
         elif Select_Target != -1:
             MAA_Pi_Config = Read_Config(maa_pi_config_Path)
             Select_Task = MAA_Pi_Config["task"].pop(Select_Target)
@@ -162,7 +247,15 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         Select_Target = self.Task_List.currentRow()
         MAA_Pi_Config = Read_Config(maa_pi_config_Path)
         if Select_Target >= len(MAA_Pi_Config["task"])-1:
-            pass
+            InfoBar.error(
+            title='错误',
+            content="已经是末位任务",
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_RIGHT,
+            duration=2000,
+            parent=self
+        )
         elif Select_Target < len(MAA_Pi_Config["task"]):
             Select_Task = MAA_Pi_Config["task"].pop(Select_Target)
             MAA_Pi_Config["task"].insert(Select_Target+1, Select_Task)
@@ -225,82 +318,33 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             label = getattr(self,f"TaskName_Title_{i}") 
             label.setText("任务")
             label.hide()
+    def Start_ADB_Detection(self):  
+    # 检测ADB线程  
+        self._auto_detect_adb_thread.start() 
     
-    def Auto_Detect_ADB(self):
-        # 使用threading启动一个新线程来执行更新操作  
-        threading.Thread(target=self._Auto_Detect_ADB, daemon=True).start()
-    def _Auto_Detect_ADB(self):
-        emulator = [
-            {
-                "name":"BlueStacks",
-                "exe_name":"HD-Player.exe",
-                "may_path":["HD-Adb.exe","Engine\\ProgramFiles\\HD-Adb.exe"],
-                "port":["127.0.0.1:5555","127.0.0.1:5556","127.0.0.1:5565","127.0.0.1:5575"]
-            },
-            {
-                "name":"MuMuPlayer12",
-                "exe_name":"MuMuPlayer.exe",
-                "may_path":["vmonitor\\bin\\adb_server.exe","MuMu\\emulator\\nemu\\vmonitor\\bin\\adb_server.exe","adb.exe"],
-                "port":["127.0.0.1:16384", "127.0.0.1:16416", "127.0.0.1:16448"]
-            },
-            {
-                "name":"LDPlayer",
-                "exe_name":"dnplayer.exe",
-                "may_path":["adb.exe"],
-                "port":["127.0.0.1:5555","127.0.0.1:5556"]
-            },
-            {
-                "name":"Nox",
-                "exe_name":"Nox.exe",
-                "may_path":["nox_adb.exe"],
-                "port":["127.0.0.1:62001", "127.0.0.1:59865"]
-            },
-            {
-                "name":"MuMuPlayer6",
-                "exe_name":"NemuPlayer.exe",
-                "may_path":["vmonitor\\bin\\adb_server.exe","MuMu\\emulator\\nemu\\vmonitor\\bin\\adb_server.exe","adb.exe"],
-                "port":["127.0.0.1:7555"]
-            },
-            {
-                "name":"MEmuPlayer.exe",
-                "exe_name":"MEmu",
-                "may_path":["adb.exe"],
-                "port":["127.0.0.1:21503"]
-            },
-            {
-                "name":"ADV",
-                "exe_name":"qemu-system.exe",
-                "may_path":["..\\..\\..\\platform-tools\\adb.exe"],
-                "port":["127.0.0.1:5555"]
-            }
-]       
-        
-        global emulator_result
-        emulator_result = []
-        for app in emulator:
-            process_path = find_process_by_name(app["exe_name"])
-            
-            if process_path:
-                # 判断程序是否正在运行,是进行下一步,否则放弃
-                info_dict = {"exe_path":process_path,"may_path":app["may_path"]}
-                ADB_path = find_existing_file(info_dict)
-                if ADB_path:
-                    
-                    # 判断ADB地址是否存在,是进行下一步,否则放弃
-                    port_data = check_port(app["port"])
-                    if port_data:
-                        # 判断端口是否存在,是则组合字典,否则放弃
-                        emulator_result.extend([{"name":app["name"],"path":ADB_path,"port": item} for item in port_data])
-        
-        if emulator_result:
-            processed_list = [] 
-            print("提示","查找完成")
-            for i in emulator_result:
-                processed_s = i["name"]
-                processed_list.append(processed_s)
-            self.AutoDetect_Combox.addItems(processed_list)
+    def On_ADB_Detected(self, message):
+        if message == []:
+            InfoBar.error(
+            title='错误',
+            content="未检测到模拟器",
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_RIGHT,
+            duration=-1,    # won't disappear automatically
+            parent=self
+        )
         else:
-            print("错误","未找到模拟器")
+            InfoBar.success(
+            title='成功',
+            content=f'检测到{message[0]}',
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_RIGHT,
+            duration=2000,
+            parent=self
+        )
+        self.Autodetect_combox.addItems(message)
+
 
     def Replace_ADB_data(self):
         print(emulator_result[self.AutoDetect_Combox.currentText()]["port"])

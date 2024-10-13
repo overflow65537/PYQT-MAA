@@ -2,7 +2,8 @@
 from PyQt6.QtGui import QIcon
 from qfluentwidgets import FluentWindow                    
 from qfluentwidgets import FluentIcon as FIF
-from .Task_Interface import TaskInterface
+from .task_interface import TaskInterface
+# from .setting_interface import SettingInterface
 
 
 
@@ -14,6 +15,7 @@ class MainWindow(FluentWindow):
         self.initWindow()
         # create sub interface
         self.TaskInterface = TaskInterface(self)
+        # self.settingInterface = SettingInterface(self)
         # add items to navigation interface
         self.initNavigation()
 
