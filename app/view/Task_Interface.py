@@ -1,15 +1,15 @@
-from PyQt5.QtWidgets import QWidget,QTextEdit
-from .tool import *
+from PyQt6.QtWidgets import QSizePolicy, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout
+from qfluentwidgets import PushButton, BodyLabel, ComboBox, ListWidget, TextEdit
+from app.view.UI_Task_Interface import Ui_Task_Interface
 
-from view.Ui_Task_Interface import Ui_Task_Interface
-
+from app.utils.tool import *
 import os, threading
 from datetime import datetime  
 from maa.toolkit import Toolkit
 from maa.notification_handler import NotificationHandler, NotificationType
 
 class MyNotificationHandler(NotificationHandler):
-    def __init__(self, TaskOutput_Text: QTextEdit):  
+    def __init__(self, TaskOutput_Text: TextEdit):  
         super().__init__()  
         self.TaskOutput_Text = TaskOutput_Text 
 
@@ -40,32 +40,38 @@ class TaskInterface(Ui_Task_Interface, QWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setupUi(self)
-        # 初始化显示
+        # 初始化主窗口
+
+        # 资源文件位置
         global interface_Path 
         global maa_pi_config_Path
         global resource_Path
-
         interface_Path = os.path.join(os.getcwd(),"interface.json")
         maa_pi_config_Path = os.path.join(os.getcwd(),"config","maa_pi_config.json")
         resource_Path = os.path.join(os.getcwd(),"resource")
-        return_init = gui_init(resource_Path,maa_pi_config_Path,interface_Path)
 
-        self.Task_List.addItems(Get_Values_list_Option(maa_pi_config_Path,"task"))
+        #获取初始数值
+        return_init = gui_init(resource_Path,maa_pi_config_Path,interface_Path)
         
+        # 填充数据至组件
+        self.Task_List.addItems(Get_Values_list_Option(maa_pi_config_Path,"task"))
         self.Resource_Combox.addItems(Get_Values_list(interface_Path,key1 = "resource"))
         self.Resource_Combox.setCurrentIndex(return_init["init_Resource_Type"])
         self.Control_Combox.addItems(Get_Values_list(interface_Path,key1 = "controller"))
         self.Control_Combox.setCurrentIndex(return_init["init_Controller_Type"])
         self.SelectTask_Combox_1.addItems(Get_Values_list(interface_Path,key1 = "task"))
+        
         # 隐藏任务选项
         self.SelectTask_Combox_2.hide()
         self.SelectTask_Combox_3.hide()
         self.SelectTask_Combox_4.hide()
+        
         # 隐藏任务标签
         self.TaskName_Title_2.hide()
         self.TaskName_Title_3.hide()
         self.TaskName_Title_4.hide()
         self.Topic_Text.hide()
+        
         # 绑定信号
         self.AddTask_Button.clicked.connect(self.Add_Task)
         self.Delete_Button.clicked.connect(self.Delete_Task)
@@ -75,16 +81,16 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.Resource_Combox.activated.connect(self.Save_Resource)
         self.Control_Combox.activated.connect(self.Save_Controller)
         self.AutoDetect_Button.clicked.connect(self.Auto_Detect_ADB)
-        self.StartTask_Button.clicked.connect(self.Start_Up)
+        self.S2_Button.clicked.connect(self.Start_Up)
 
     def Start_Up(self):
         self.TaskOutput_Text.clear()
-
-        threading.Thread(target=self._Start_Up, daemon=True).start()
+        notification_handler = MyNotificationHandler(self.TaskOutput_Text) 
+        Toolkit.pi_run_cli(os.getcwd(), os.getcwd(), True,notification_handler)
 
 
     def _Start_Up(self):
-        notification_handler = MyNotificationHandler(self.TaskOutput_Text)  
+        notification_handler = MyNotificationHandler(self.TaskOutput_Text) 
         Toolkit.pi_run_cli(os.getcwd(), os.getcwd(), True, notification_handler=notification_handler)
 
     def Add_Task(self):
@@ -211,7 +217,6 @@ class TaskInterface(Ui_Task_Interface, QWidget):
                     break  # 找到匹配的任务后退出循环  
 
     def clear_extra_widgets(self):
-
         for i in range(2, 5): 
             select_box = getattr(self, f"SelectTask_Combox_{i}")  
             select_box.clear()
@@ -300,3 +305,5 @@ class TaskInterface(Ui_Task_Interface, QWidget):
     def Replace_ADB_data(self):
         print(emulator_result[self.AutoDetect_Combox.currentText()]["port"])
         print(emulator_result[self.AutoDetect_Combox.currentText()]["path"])
+
+
