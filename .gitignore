@@ -451,5 +451,4 @@ interface.json
 !resource/base/model/*
 config/maa_option.json
 config/maa_pi_config.json
-
-app/common/config.py
+config/config.json
