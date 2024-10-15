@@ -9,6 +9,7 @@ from datetime import datetime
 from maa.toolkit import Toolkit
 from maa.notification_handler import NotificationHandler, NotificationType
 
+
 class AutoDetectADBSignal(QObject):  
 # 检测ADB任务的信号,传回list
     adb_detected = pyqtSignal(list) 
@@ -23,8 +24,8 @@ class AutoDetectADBThread(QThread):
   
     def run(self):  
         emulator_result = []
-        emulator = Read_Config(os.path.join(os.getcwd(),"app","config","emulator.json"))
-        for app in emulator:
+        emulator_list = Read_Config(os.path.join(os.getcwd(), "config", "emulator.json"))
+        for app in emulator_list:
             process_path = find_process_by_name(app["exe_name"])
             
             if process_path:
@@ -323,6 +324,8 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self._auto_detect_adb_thread.start() 
     
     def On_ADB_Detected(self, message):
+        global emu
+        emu = message
         if message == []:
             InfoBar.error(
             title='错误',
@@ -346,8 +349,4 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.Autodetect_combox.addItems(message)
 
 
-    def Replace_ADB_data(self):
-        print(emulator_result[self.AutoDetect_Combox.currentText()]["port"])
-        print(emulator_result[self.AutoDetect_Combox.currentText()]["path"])
-
-
+    

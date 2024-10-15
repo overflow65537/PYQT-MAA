@@ -446,8 +446,10 @@ install
 
 # Tools
 tools/ImageCropper/**/*.png
-config/
-resource/
-*.ui
+resource/*
 interface.json
-!resource\base\model\
+!resource/base/model/*
+config/maa_option.json
+config/maa_pi_config.json
+
+app/common/config.py

@@ -1,0 +1,21 @@
+{
+    "ADB": {
+        "Path": "C:/Users/errov/PYQT-MAA/resource/PC/default_pipeline.json",
+        "port": "2222"
+    },
+    "Material": {
+        "AcrylicBlurRadius": 7
+    },
+    "Update": {
+        "CheckUpdateAtStartUp": false
+    },
+    "MainWindow": {
+        "DpiScale": "Auto",
+        "Language": "Auto",
+        "MicaEnabled": true
+    },
+    "QFluentWidgets": {
+        "ThemeColor": "#ff009faa",
+        "ThemeMode": "Dark"
+    }
+}
