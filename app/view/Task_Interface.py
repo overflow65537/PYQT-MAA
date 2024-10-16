@@ -1,13 +1,15 @@
 from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
 from PyQt6.QtWidgets import QWidget
 from qfluentwidgets import InfoBar, InfoBarPosition, TextEdit
-from app.view.UI_task_interface import Ui_Task_Interface
+from ..view.UI_task_interface import Ui_Task_Interface
+from ..view.setting_interface import SettingInterface
 
-from app.utils.tool import *
+from ..utils.tool import *
 import os, threading
 from datetime import datetime  
 from maa.toolkit import Toolkit
 from maa.notification_handler import NotificationHandler, NotificationType
+
 
 
 class AutoDetectADBSignal(QObject):  
@@ -30,7 +32,10 @@ class AutoDetectADBThread(QThread):
             
             if process_path:
                 # 判断程序是否正在运行,是进行下一步,否则放弃
-                info_dict = {"exe_path":process_path,"may_path":app["may_path"]}
+                may_path = []
+                for i in app["may_path"]:
+                    may_path.append(os.path.join(*i))
+                info_dict = {"exe_path":process_path,"may_path":may_path}
                 ADB_path = find_existing_file(info_dict)
                 if ADB_path:
                     
@@ -41,11 +46,8 @@ class AutoDetectADBThread(QThread):
                         emulator_result.extend([{"name":app["name"],"path":ADB_path,"port": item} for item in port_data])
         
         if emulator_result:
-            processed_list = [] 
-            for i in emulator_result:
-                processed_s = i["name"]
-                processed_list.append(processed_s)
-            self.signal.adb_detected.emit(processed_list)
+           
+            self.signal.adb_detected.emit(emulator_result)
         else:
             None_ADB_data = []
             self.signal.adb_detected.emit(None_ADB_data)
@@ -96,7 +98,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.First_Start(interface_Path, maa_pi_config_Path, resource_Path)
 
         self._auto_detect_adb_thread = AutoDetectADBThread(self)  
-    
+        self.Start_ADB_Detection()
         
         # 隐藏任务选项
         self.SelectTask_Combox_2.hide()
@@ -116,10 +118,11 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.MoveUp_Button.clicked.connect(self.Move_Up)
         self.MoveDown_Button.clicked.connect(self.Move_Down)
         self.SelectTask_Combox_1.activated.connect(self.Add_Select_Task_More_Select)
-        self.Resource_Combox.activated.connect(self.Save_Resource)
-        self.Control_Combox.activated.connect(self.Save_Controller)
+        self.Resource_Combox.currentTextChanged.connect(self.Save_Resource)
+        self.Control_Combox.currentTextChanged.connect(self.Save_Controller)
         self.AutoDetect_Button.clicked.connect(self.Start_ADB_Detection)
         self.S2_Button.clicked.connect(self.Start_Up)
+        self.Autodetect_combox.currentTextChanged.connect(self.Save_ADB_Config)
 
     def First_Start(self, interface_Path, maa_pi_config_Path, resource_Path):
         # 资源文件和配置文件全存在
@@ -134,11 +137,16 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             self.Control_Combox.setCurrentIndex(return_init["init_Controller_Type"])
 
         # 配置文件不在
+        
         elif os.path.exists(resource_Path) and os.path.exists(interface_Path) and not(os.path.exists(maa_pi_config_Path)):
             # 填充数据至组件
+            data = {"adb": {"adb_path": "","address":"127.0.0.1:0"},"controller": {"name": ""},"gpu": -1,"resource": "","task": [],"win32": {"_placeholder": 0}}
+            Save_Config(maa_pi_config_Path,data)
             self.Resource_Combox.addItems(Get_Values_list(interface_Path,key1 = "resource"))
             self.Control_Combox.addItems(Get_Values_list(interface_Path,key1 = "controller"))
             self.SelectTask_Combox_1.addItems(Get_Values_list(interface_Path,key1 = "task"))
+            self.Save_Resource()
+            self.Save_Controller()
         
         # 全不在
         else:
@@ -151,7 +159,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             duration=-1, 
             parent=self
         )
-            
+          
             
     def Start_Up(self):
         self.TaskOutput_Text.clear()
@@ -323,10 +331,10 @@ class TaskInterface(Ui_Task_Interface, QWidget):
     # 检测ADB线程  
         self._auto_detect_adb_thread.start() 
     
-    def On_ADB_Detected(self, message):
-        global emu
-        emu = message
-        if message == []:
+    def On_ADB_Detected(self, emu):
+        global emu_data
+        emu_data = emu
+        if emu == []:
             InfoBar.error(
             title='错误',
             content="未检测到模拟器",
@@ -337,16 +345,43 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             parent=self
         )
         else:
+            processed_list = [] 
+            for i in emu:
+                processed_s = i["name"]
+                processed_list.append(processed_s)
+
             InfoBar.success(
             title='成功',
-            content=f'检测到{message[0]}',
+            content=f'检测到{processed_list[0]}',
             orient=Qt.Orientation.Horizontal,
             isClosable=True,
             position=InfoBarPosition.BOTTOM_RIGHT,
             duration=2000,
             parent=self
         )
-        self.Autodetect_combox.addItems(message)
+            self.Autodetect_combox.addItems(processed_list)
+        
+        
 
+    def Save_ADB_Config(self):
+        target = self.Autodetect_combox.text()
+        for i in emu_data:
+            if i["name"] == target:
+                result = i
+        print(result)
+
+        self.settingInterface = SettingInterface(self)
+
+        port_data = Read_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"))
+        port_data["adb"]["adb_path"] = result["path"]
+        self.settingInterface.ADBPath.setContent(result["path"])
+
+        Save_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"),port_data)
+        path_data = Read_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"))
+        path_data["adb"]["address"] = result["port"]
+        self.settingInterface.ADBPort.setContent(result["port"])
+
+
+        Save_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"),path_data)
 
     

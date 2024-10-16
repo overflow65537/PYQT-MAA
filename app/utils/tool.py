@@ -9,12 +9,13 @@ def Read_Config(paths):
         with open(paths,"r",encoding='utf-8') as MAA_Config:
             MAA_data = json.load(MAA_Config)
             return MAA_data
+    else:
+        return False
     
 def Save_Config(paths,data):
      # 打开json并写入data内数据
-    if os.path.exists(paths):
-        with open(paths,"w",encoding='utf-8') as MAA_Config:
-            json.dump(data,MAA_Config,indent=4,ensure_ascii=False)
+    with open(paths,"w",encoding='utf-8') as MAA_Config:
+        json.dump(data,MAA_Config,indent=4,ensure_ascii=False)
 
 def gui_init(resource_Path,maa_pi_config_Path,interface_Path):
     if not os.path.exists(resource_Path):
@@ -107,7 +108,7 @@ def find_process_by_name(process_name):
             return False  
 def find_existing_file(info_dict):  
     #输入一个包含可执行文件的绝对路径和可能存在ADB的相对路径,输出ADB文件的绝对地路径
-    exe_path = info_dict.get("exe_path").rsplit("\\",1)[0]
+    exe_path = info_dict.get("exe_path").rsplit(os.sep,1)[0]
     may_paths = info_dict.get("may_path", [])
     if not exe_path or not may_paths:  
         return False   

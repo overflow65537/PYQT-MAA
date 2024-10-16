@@ -2,8 +2,8 @@
 from qfluentwidgets import (SettingCardGroup, SwitchSettingCard, FolderListSettingCard,
                             OptionsSettingCard, PushSettingCard,
                             HyperlinkCard, PrimaryPushSettingCard, ScrollArea,
-                            ComboBoxSettingCard, ExpandLayout, Theme, CustomColorSettingCard,
-                            setTheme, setThemeColor, RangeSettingCard, isDarkTheme)
+                            ComboBoxSettingCard, ExpandLayout, BoolValidator, CustomColorSettingCard,
+                            setTheme, setThemeColor, ConfigItem, isDarkTheme)
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import InfoBar
 from PyQt6.QtCore import Qt, pyqtSignal, QUrl, QStandardPaths
@@ -14,6 +14,8 @@ from ..common.config import cfg, HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR, 
 from ..common.signal_bus import signalBus
 from ..common.style_sheet import StyleSheet
 from ..components.line_edit_card import LineEditCard
+from ..utils.tool import Read_Config, Save_Config
+import os
 
 
 class SettingInterface(ScrollArea):
@@ -28,23 +30,33 @@ class SettingInterface(ScrollArea):
         self.settingLabel = QLabel(self.tr("Settings"), self)
 
         # ADB Group
+        
+        if os.path.exists(os.path.join(os.getcwd(),"config","maa_pi_config.json")):
+            pi_config = Read_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"))
+            Port_data = pi_config["adb"]["address"].split(':')[1]
+            path_data = pi_config["adb"]["adb_path"]
+        else:
+            Port_data = "0"
+            path_data = "./"
+
         self.ADB_Path_Port_Adjuster = SettingCardGroup(
             self.tr("ADB"), self.scrollWidget)
         self.ADBPort = LineEditCard(
-            FIF.LANGUAGE,
-            cfg.get(cfg.ADBPort),
+            FIF.COMMAND_PROMPT,
+            Port_data,
             title = self.tr("ADB Port"),
             parent=self.ADB_Path_Port_Adjuster
         )
         self.ADBPath = PushSettingCard(
             self.tr('Choose ADB'),
-            FIF.DOWNLOAD,
+            FIF.COMMAND_PROMPT,
             self.tr("ADB Path"),
-            cfg.get(cfg.ADBPath),
+            path_data,
             self.ADB_Path_Port_Adjuster
         )
 
         # personalization
+        print(cfg.micaEnabled)
         self.personalGroup = SettingCardGroup(
             self.tr('Personalization'), self.scrollWidget)
         self.micaCard = SwitchSettingCard(
@@ -92,15 +104,17 @@ class SettingInterface(ScrollArea):
             parent=self.personalGroup
         )
 
-        # material
-        self.materialGroup = SettingCardGroup(
-            self.tr('Material'), self.scrollWidget)
-        self.blurRadiusCard = RangeSettingCard(
-            cfg.blurRadius,
+        # 调试模式
+        if os.path.exists(os.path.join(os.getcwd(),"config","maa_option.json")):
+            DEV_Config = Read_Config(os.path.join(os.getcwd(),"config","maa_option.json"))["save_draw"]
+        self.DEVGroup = SettingCardGroup(
+            self.tr('DEV Mode'), self.scrollWidget)
+        self.DEVmodeCard = SwitchSettingCard(
             FIF.ALBUM,
-            self.tr('Acrylic blur radius'),
-            self.tr('The greater the radius, the more blurred the image'),
-            self.materialGroup
+            self.tr('DEV mode switch'),
+            self.tr('When the debug mode is enabled, screenshots will be saved in ./debug/vision'),
+            configItem=ConfigItem(group="DEV",name="DEV" , default=DEV_Config),
+            parent=self.DEVGroup
         )
 
         # update software
@@ -175,7 +189,7 @@ class SettingInterface(ScrollArea):
         self.personalGroup.addSettingCard(self.zoomCard)
         self.personalGroup.addSettingCard(self.languageCard)
 
-        self.materialGroup.addSettingCard(self.blurRadiusCard)
+        self.DEVGroup.addSettingCard(self.DEVmodeCard)
 
         self.updateSoftwareGroup.addSettingCard(self.updateOnStartUpCard)
 
@@ -188,7 +202,7 @@ class SettingInterface(ScrollArea):
         self.expandLayout.setContentsMargins(36, 10, 36, 0)
         self.expandLayout.addWidget(self.ADB_Path_Port_Adjuster)
         self.expandLayout.addWidget(self.personalGroup)
-        self.expandLayout.addWidget(self.materialGroup)
+        self.expandLayout.addWidget(self.DEVGroup)
         self.expandLayout.addWidget(self.updateSoftwareGroup)
         self.expandLayout.addWidget(self.aboutGroup)
 
@@ -208,7 +222,9 @@ class SettingInterface(ScrollArea):
         if not file_name:  
             return  
 
-        cfg.set(cfg.ADBPath, file_name)
+        data = Read_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"))
+        data["adb"]["adb_path"] = file_name
+        Save_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"),data)
         self.ADBPath.setContent(file_name)
 
     def __connectSignalToSlot(self):
@@ -219,6 +235,9 @@ class SettingInterface(ScrollArea):
         self.ADBPort.text_change.connect(self._onADBPortCardChange)
         self.ADBPath.clicked.connect(self.__onADBPathCardClicked)
 
+        # 调试信号
+
+        self.DEVmodeCard.checkedChanged.connect(self._onDEVmodeCardChange)
         # personalization
         cfg.themeChanged.connect(setTheme)
         self.themeColorCard.colorChanged.connect(lambda c: setThemeColor(c))
@@ -229,4 +248,15 @@ class SettingInterface(ScrollArea):
             lambda: QDesktopServices.openUrl(QUrl(FEEDBACK_URL)))
         
     def _onADBPortCardChange(self):
-        cfg.set(cfg.ADBPort, self.ADBPort.lineEdit.text())
+        port =self.ADBPort.lineEdit.text()
+        full_ADB_address = f'127.0.0.1:{port}'
+        data = Read_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"))
+        data["adb"]["address"] = full_ADB_address
+        Save_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"),data)
+
+
+    def _onDEVmodeCardChange(self):
+        state = self.DEVmodeCard.isChecked()
+        data = Read_Config(os.path.join(os.getcwd(),"config","maa_option.json"))
+        data["save_draw"] = state
+        Save_Config(os.path.join(os.getcwd(),"config","maa_option.json"),data)

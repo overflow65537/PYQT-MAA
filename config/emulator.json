@@ -2,43 +2,43 @@
     {
         "name":"BlueStacks",
         "exe_name":"HD-Player.exe",
-        "may_path":["HD-Adb.exe","Engine\\ProgramFiles\\HD-Adb.exe"],
+        "may_path":[["HD-Adb.exe"],["Engine","ProgramFiles","HD-Adb.exe"]],
         "port":["127.0.0.1:5555","127.0.0.1:5556","127.0.0.1:5565","127.0.0.1:5575"]
     },
     {
         "name":"MuMuPlayer12",
         "exe_name":"MuMuPlayer.exe",
-        "may_path":["vmonitor\\bin\\adb_server.exe","MuMu\\emulator\\nemu\\vmonitor\\bin\\adb_server.exe","adb.exe"],
+        "may_path":[["vmonitor","bin","adb_server.exe"],["MuMu","emulator","nemu","vmonitor","bin","adb_server.exe"],["adb.exe"]],
         "port":["127.0.0.1:16384", "127.0.0.1:16416", "127.0.0.1:16448"]
     },
     {
         "name":"LDPlayer",
         "exe_name":"dnplayer.exe",
-        "may_path":["adb.exe"],
+        "may_path":[["adb.exe"]],
         "port":["127.0.0.1:5555","127.0.0.1:5556"]
     },
     {
         "name":"Nox",
         "exe_name":"Nox.exe",
-        "may_path":["nox_adb.exe"],
+        "may_path":[["nox_adb.exe"]],
         "port":["127.0.0.1:62001", "127.0.0.1:59865"]
     },
     {
         "name":"MuMuPlayer6",
         "exe_name":"NemuPlayer.exe",
-        "may_path":["vmonitor\\bin\\adb_server.exe","MuMu\\emulator\\nemu\\vmonitor\\bin\\adb_server.exe","adb.exe"],
+        "may_path":[["vmonitor","bin","adb_server.exe"],["MuMu","emulator","nemu","vmonitor","bin","adb_server.exe"],["adb.exe"]],
         "port":["127.0.0.1:7555"]
     },
     {
         "name":"MEmuPlayer.exe",
         "exe_name":"MEmu",
-        "may_path":["adb.exe"],
+        "may_path":[["adb.exe"]],
         "port":["127.0.0.1:21503"]
     },
     {
         "name":"ADV",
         "exe_name":"qemu-system.exe",
-        "may_path":["..\\..\\..\\platform-tools\\adb.exe"],
+        "may_path":[["..","..","..","platform-tools","adb.exe"]],
         "port":["127.0.0.1:5555"]
     }
 ]

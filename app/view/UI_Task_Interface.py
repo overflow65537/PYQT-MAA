@@ -68,6 +68,11 @@ class Ui_Task_Interface(object):
         self.Autodetect_combox.setObjectName('Autodetect_combox')
         self.Finish_combox.setObjectName('Finish_combox')
 
+        self.Resource_Combox.setPlaceholderText("选择资源")
+        self.Control_Combox.setPlaceholderText("选择控制端")
+        self.Autodetect_combox.setPlaceholderText("选择设备")
+        self.Finish_combox.setPlaceholderText("完成后操作")
+
         self.LD4_layout.addWidget(self.Resource_Combox)
         self.LD4_layout.addWidget(self.Control_Combox)
         self.LD4_layout.addWidget(self.Autodetect_combox)

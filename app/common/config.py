@@ -33,13 +33,6 @@ def isWin11():
 
 class Config(QConfig):
     """ Config of application """
-
-    # folders
-    ADBPort = ConfigItem(
-        "ADB", "port", "1")
-    ADBPath = ConfigItem(
-        "ADB", "Path", "ADB Path")
-
     # main window
     micaEnabled = ConfigItem("MainWindow", "MicaEnabled", isWin11(), BoolValidator())
     dpiScale = OptionsConfigItem(
