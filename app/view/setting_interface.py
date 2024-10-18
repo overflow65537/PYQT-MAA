@@ -106,6 +106,8 @@ class SettingInterface(ScrollArea):
         # 调试模式
         if os.path.exists(os.path.join(os.getcwd(),"config","maa_option.json")):
             DEV_Config = Read_Config(os.path.join(os.getcwd(),"config","maa_option.json"))["save_draw"]
+        else:
+            DEV_Config = False
         self.DEVGroup = SettingCardGroup(
             self.tr('DEV Mode'), self.scrollWidget)
         self.DEVmodeCard = SwitchSettingCard(
