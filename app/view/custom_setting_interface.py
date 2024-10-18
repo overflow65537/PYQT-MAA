@@ -33,10 +33,10 @@ class CustomSettingInterface(ScrollArea):
             self.tr("Setting"), self.scrollWidget)
 
 
-
-        self.config_init()
+        if os.path.exists(os.path.join(os.getcwd(),"config","custom.json")):
+            self.config_init()
+            self.option_init()
         self.__initWidget()
-        self.option_init()
 
     def __initWidget(self):
         self.resize(1000, 800)
@@ -67,7 +67,7 @@ class CustomSettingInterface(ScrollArea):
 
     def CreateOption(self,dict:dict):
         if dict["optiontype"] == "combox":
-            
+
             self.combox= ComboBoxSettingCard(
                 configItem = cfg.language,
                 icon = FIF.SETTING,
