@@ -1,12 +1,12 @@
 # coding:utf-8
-from qfluentwidgets import (SettingCardGroup, SwitchSettingCard, FolderListSettingCard,
+from qfluentwidgets import (SettingCardGroup, SwitchSettingCard,
                             OptionsSettingCard, PushSettingCard,
                             HyperlinkCard, PrimaryPushSettingCard, ScrollArea,
-                            ComboBoxSettingCard, ExpandLayout, BoolValidator, CustomColorSettingCard,
-                            setTheme, setThemeColor, ConfigItem, isDarkTheme)
+                            ComboBoxSettingCard, ExpandLayout, CustomColorSettingCard,
+                            setTheme, setThemeColor, ConfigItem)
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import InfoBar
-from PyQt6.QtCore import Qt, pyqtSignal, QUrl, QStandardPaths
+from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWidgets import QWidget, QLabel, QFileDialog
 
@@ -56,7 +56,6 @@ class SettingInterface(ScrollArea):
         )
 
         # personalization
-        print(cfg.micaEnabled)
         self.personalGroup = SettingCardGroup(
             self.tr('Personalization'), self.scrollWidget)
         self.micaCard = SwitchSettingCard(

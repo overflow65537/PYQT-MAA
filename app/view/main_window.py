@@ -7,8 +7,11 @@ from qfluentwidgets import (NavigationAvatarWidget, NavigationItemPosition, Mess
                             SplashScreen, SystemThemeListener, isDarkTheme)
 from qfluentwidgets import FluentIcon as FIF
 
+import os
+
 from .setting_interface import SettingInterface
 from .task_interface import TaskInterface
+from .custom_setting_interface import CustomSettingInterface
 from ..common.config import ZH_SUPPORT_URL, EN_SUPPORT_URL, cfg
 from ..common.icon import Icon
 from ..common.signal_bus import signalBus
@@ -28,6 +31,9 @@ class MainWindow(FluentWindow):
         # create sub interface
         self.taskInterface = TaskInterface(self)
         self.settingInterface = SettingInterface(self)
+        self.customsettingInterface = CustomSettingInterface(self)
+        
+
 
 
         # enable acrylic effect
@@ -56,9 +62,18 @@ class MainWindow(FluentWindow):
 
         # add custom widget to bottom
 
-        self.addSubInterface(self.taskInterface, FIF.CHECKBOX,self.tr('每日任务'))
-        self.addSubInterface(
-            self.settingInterface, FIF.SETTING, self.tr('Settings'), NavigationItemPosition.BOTTOM)
+       
+        if os.path.exists(os.path.join(os.getcwd(),"config","custom.json")):
+            self.addSubInterface(self.taskInterface, FIF.CHECKBOX,self.tr('Task'))
+            self.addSubInterface(self.customsettingInterface, FIF.CHECKBOX,self.tr('Custom Setting'))
+            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('Settings'), NavigationItemPosition.BOTTOM)
+        else:
+            self.addSubInterface(self.taskInterface, FIF.CHECKBOX,self.tr('Task'))
+            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('Settings'), NavigationItemPosition.BOTTOM)
+        
+        
+
+        
 
     def initWindow(self):
         self.resize(960, 780)

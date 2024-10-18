@@ -98,7 +98,6 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.First_Start(interface_Path, maa_pi_config_Path, resource_Path)
 
         self._auto_detect_adb_thread = AutoDetectADBThread(self)  
-        self.Start_ADB_Detection()
         
         # 隐藏任务选项
         self.SelectTask_Combox_2.hide()

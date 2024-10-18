@@ -452,3 +452,5 @@ interface.json
 config/maa_option.json
 config/maa_pi_config.json
 config/config.json
+config/custom.json
+config/custom_config.json
