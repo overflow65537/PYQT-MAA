@@ -14,6 +14,8 @@ from ..common.config import cfg, HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR, 
 from ..common.signal_bus import signalBus
 from ..common.style_sheet import StyleSheet
 from ..components.line_edit_card import LineEditCard
+from ..components.custom_ComboBox_Setting_Card import CustomComboBoxSettingCard
+from ..components.custom_Switch_Setting_Card import CustomSwitchSettingCard
 from ..utils.tool import Read_Config, Save_Config
 import os
 
@@ -67,13 +69,12 @@ class CustomSettingInterface(ScrollArea):
 
     def CreateOption(self,dict:dict):
         if dict["optiontype"] == "combox":
-
-            self.combox= ComboBoxSettingCard(
-                configItem = cfg.language,
+            self.combox = CustomComboBoxSettingCard(
                 icon = FIF.SETTING,
                 title = dict["text"]["title"],
                 content = dict["text"]["content"],
                 texts=dict["optioncontent"],
+                target= dict["optionname"],
                 parent=self.CustomSettingGroup
             )
             self.CustomSettingGroup.addSettingCard(self.combox)
@@ -93,6 +94,19 @@ class CustomSettingInterface(ScrollArea):
                 custom=False
             )
             self.CustomSettingGroup.addSettingCard(self.lineedit)
+        
+        elif dict["optiontype"] == "switch":
+            self.Switch = CustomSwitchSettingCard(
+                icon = FIF.COMMAND_PROMPT,
+                title = dict["text"]["title"],
+                content = dict["text"]["content"],
+                target= dict["optionname"],
+                parent=self.CustomSettingGroup
+            )
+            self.CustomSettingGroup.addSettingCard(self.Switch)
+            
+
+            
     def config_init(self):
         config_path = os.path.join(os.getcwd(),"config","custom_config.json")
         custom_path = os.path.join(os.getcwd(),"config","custom.json")
@@ -102,7 +116,6 @@ class CustomSettingInterface(ScrollArea):
             dicts = {}
             config = Read_Config(custom_path)
             for i in config.items():
-                print(i[1])
                 try:
                     dicts[i[1]["optionname"]] = i[1]["optioncontent"]
                 except:
@@ -114,5 +127,6 @@ class CustomSettingInterface(ScrollArea):
         config = Read_Config(custom_path)
         for i in config.items():
             self.CreateOption(i[1])
+
             
 

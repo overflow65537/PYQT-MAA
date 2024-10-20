@@ -65,7 +65,7 @@ class MainWindow(FluentWindow):
        
         if os.path.exists(os.path.join(os.getcwd(),"config","custom.json")):
             self.addSubInterface(self.taskInterface, FIF.CHECKBOX,self.tr('Task'))
-            self.addSubInterface(self.customsettingInterface, FIF.CHECKBOX,self.tr('Custom Setting'))
+            self.addSubInterface(self.customsettingInterface, FIF.IOT,self.tr('Custom Setting'))
             self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('Settings'), NavigationItemPosition.BOTTOM)
         else:
             self.addSubInterface(self.taskInterface, FIF.CHECKBOX,self.tr('Task'))

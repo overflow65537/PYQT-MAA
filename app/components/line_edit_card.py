@@ -1,5 +1,4 @@
 from typing import Union
-
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtGui import QIcon
 from qfluentwidgets import (SettingCard, FluentIconBase, LineEdit)
@@ -41,7 +40,6 @@ class LineEditCard(SettingCard):
             pass
         else:
             self.lineEdit.textChanged.connect(self.__ontextChanged)
-            print(custom)
     def __ontextChanged(self):
         text = self.lineEdit.text()
         data = Read_Config((os.path.join(os.getcwd(),"config","custom_config.json")))
