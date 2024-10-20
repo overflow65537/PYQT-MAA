@@ -46,3 +46,8 @@
 }
 ```
 - 处理后的数据会保存至./config/custom_config.json
+
+## 致谢
+- [PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets):A fluent design widgets library based on C++ Qt/PyQt/PySide. Make Qt Great Again.
+- [MaaFramework](https://github.com/MaaAssistantArknights/MaaFramework)：自动化测试框架
+
