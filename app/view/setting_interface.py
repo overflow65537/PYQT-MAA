@@ -26,13 +26,16 @@ class SettingInterface(ScrollArea):
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
+
+        global maa_pi_config_Path
+        maa_pi_config_Path = os.path.join(os.getcwd(),"config","maa_pi_config.json")
         # setting label
         self.settingLabel = QLabel(self.tr("Settings"), self)
 
         # ADB Group
         
-        if os.path.exists(os.path.join(os.getcwd(),"config","maa_pi_config.json")):
-            pi_config = Read_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"))
+        if os.path.exists(maa_pi_config_Path):
+            pi_config = Read_Config(maa_pi_config_Path)
             Port_data = pi_config["adb"]["address"].split(':')[1]
             path_data = pi_config["adb"]["adb_path"]
         else:
@@ -223,9 +226,9 @@ class SettingInterface(ScrollArea):
         if not file_name:  
             return  
 
-        data = Read_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"))
+        data = Read_Config(maa_pi_config_Path)
         data["adb"]["adb_path"] = file_name
-        Save_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"),data)
+        Save_Config(maa_pi_config_Path,data)
         self.ADBPath.setContent(file_name)
 
     def __connectSignalToSlot(self):
@@ -251,13 +254,13 @@ class SettingInterface(ScrollArea):
     def _onADBPortCardChange(self):
         port =self.ADBPort.lineEdit.text()
         full_ADB_address = f'127.0.0.1:{port}'
-        data = Read_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"))
+        data = Read_Config(maa_pi_config_Path)
         data["adb"]["address"] = full_ADB_address
-        Save_Config(os.path.join(os.getcwd(),"config","maa_pi_config.json"),data)
+        Save_Config(maa_pi_config_Path,data)
 
 
     def _onDEVmodeCardChange(self):
         state = self.DEVmodeCard.isChecked()
-        data = Read_Config(os.path.join(os.getcwd(),"config","maa_option.json"))
+        data = Read_Config(maa_pi_config_Path)
         data["save_draw"] = state
-        Save_Config(os.path.join(os.getcwd(),"config","maa_option.json"),data)
+        Save_Config(maa_pi_config_Path,data)

@@ -26,11 +26,15 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         interface_Path = os.path.join(os.getcwd(),"interface.json")
         maa_pi_config_Path = os.path.join(os.getcwd(),"config","maa_pi_config.json")
         resource_Path = os.path.join(os.getcwd(),"resource")
-        # 初次启动
+        # 初始化组件
         self.First_Start(interface_Path, maa_pi_config_Path, resource_Path)
+        self.init_widget()
 
-        self._auto_detect_adb_thread = AutoDetectADBThread(self)  
-        
+    def init_widget(self):
+
+        self._auto_detect_adb_thread = AutoDetectADBThread(self) 
+        self.MyNotificationHandler = MyNotificationHandler(self) 
+
         # 隐藏任务选项
         self.SelectTask_Combox_2.hide()
         self.SelectTask_Combox_3.hide()
@@ -43,6 +47,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.Topic_Text.hide()
         
         # 绑定信号
+        self.MyNotificationHandler.callbackSignal.callback.connect(self.change_output)
         self._auto_detect_adb_thread.signal.adb_detected.connect(self.On_ADB_Detected)
         self.AddTask_Button.clicked.connect(self.Add_Task)
         self.Delete_Button.clicked.connect(self.Delete_Task)
@@ -99,8 +104,8 @@ class TaskInterface(Ui_Task_Interface, QWidget):
 
     def _Start_Up(self):
         # notification_handler = MyNotificationHandler(callback.callback_sig) 
-        notification_handler = MyNotificationHandler(self.TaskOutput_Text)
-        Toolkit.pi_run_cli(os.getcwd(), os.getcwd(), True, notification_handler=notification_handler)
+
+        Toolkit.pi_run_cli(os.getcwd(), os.getcwd(), True, notification_handler=self.MyNotificationHandler)
 
     def Add_Task(self):
     # 添加任务
@@ -262,6 +267,10 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             label = getattr(self,f"TaskName_Title_{i}") 
             label.setText("任务")
             label.hide()
+
+    def change_output(self,msg):
+        self.TaskOutput_Text.append(msg)
+
     def Start_ADB_Detection(self):  
     # 检测ADB线程  
         self._auto_detect_adb_thread.start() 
