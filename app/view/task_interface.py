@@ -1,85 +1,17 @@
-from PyQt6.QtCore import Qt, QThread, pyqtSignal, QObject
+from maa.toolkit import Toolkit
+
+from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget
-from qfluentwidgets import InfoBar, InfoBarPosition, TextEdit
+from qfluentwidgets import InfoBar, InfoBarPosition
+
 from ..view.UI_task_interface import Ui_Task_Interface
 from ..view.setting_interface import SettingInterface
-
+from ..utils.Notification import MyNotificationHandler
+from ..utils.AutoDetectADBThread import AutoDetectADBThread
 from ..utils.tool import *
+
 import os, threading
-from datetime import datetime  
-from maa.toolkit import Toolkit
-from maa.notification_handler import NotificationHandler, NotificationType
 
-
-
-class AutoDetectADBSignal(QObject):  
-# 检测ADB任务的信号,传回list
-    adb_detected = pyqtSignal(list) 
-
-class callback(QObject):
-    callback_sig = pyqtSignal(str)
-    
-class AutoDetectADBThread(QThread):  
-    def __init__(self, parent=None):  
-        super(AutoDetectADBThread, self).__init__(parent)  
-        self.signal = AutoDetectADBSignal()  # 创建信号对象  
-  
-    def run(self):  
-        emulator_result = []
-        emulator_list = Read_Config(os.path.join(os.getcwd(), "config", "emulator.json"))
-        for app in emulator_list:
-            process_path = find_process_by_name(app["exe_name"])
-            
-            if process_path:
-                # 判断程序是否正在运行,是进行下一步,否则放弃
-                may_path = []
-                for i in app["may_path"]:
-                    may_path.append(os.path.join(*i))
-                info_dict = {"exe_path":process_path,"may_path":may_path}
-                ADB_path = find_existing_file(info_dict)
-                if ADB_path:
-                    
-                    # 判断ADB地址是否存在,是进行下一步,否则放弃
-                    port_data = check_port(app["port"])
-                    if port_data:
-                        # 判断端口是否存在,是则组合字典,否则放弃
-                        emulator_result.extend([{"name":app["name"],"path":ADB_path,"port": item} for item in port_data])
-        
-        if emulator_result:
-           
-            self.signal.adb_detected.emit(emulator_result)
-        else:
-            None_ADB_data = []
-            self.signal.adb_detected.emit(None_ADB_data)
-
-              
-
-class MyNotificationHandler(NotificationHandler):
-    def __init__(self, TaskOutput_Text : TextEdit):  
-        super().__init__()  
-        self.TaskOutput_Text = TaskOutput_Text
-
-    def on_controller_action(
-        self,
-        noti_type: NotificationType,
-        detail: NotificationHandler.ControllerActionDetail,
-    ):
-        now_time = datetime.now().strftime("%H:%M:%S") 
-        if noti_type.value == 1:
-            self.TaskOutput_Text.append(f"{now_time}"+" 连接中")
-        elif noti_type.value == 2:
-            self.TaskOutput_Text.append(f"{now_time}"+" 连接成功")
-        elif noti_type.value == 3:
-            self.TaskOutput_Text.append(f"{now_time}"+" 连接失败")
-        else:
-            self.TaskOutput_Text.append(f"{now_time}"+" 连接状态未知")
-
-    def on_tasker_task(
-        self, noti_type: NotificationType, detail: NotificationHandler.TaskerTaskDetail
-            ):
-        now_time = datetime.now().strftime("%H:%M:%S") 
-        status_map = {  0: "未知",  1: "运行中",  2: "成功",  3: "失败"  }  
-        self.TaskOutput_Text.append(f"{now_time}"+" "+f"{detail.entry}"+" "+f"{status_map[noti_type.value]}")
 
 class TaskInterface(Ui_Task_Interface, QWidget):
 
@@ -139,7 +71,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         
         elif os.path.exists(resource_Path) and os.path.exists(interface_Path) and not(os.path.exists(maa_pi_config_Path)):
             # 填充数据至组件
-            data = {"adb": {"adb_path": "","address":"127.0.0.1:0"},"controller": {"name": ""},"gpu": -1,"resource": "","task": [],"win32": {"_placeholder": 0}}
+            data = {"adb": {"adb_path": "","address":"127.0.0.1:0","config":{}},"controller": {"name": ""},"gpu": -1,"resource": "","task": [],"win32": {"_placeholder": 0}}
             Save_Config(maa_pi_config_Path,data)
             self.Resource_Combox.addItems(Get_Values_list(interface_Path,key1 = "resource"))
             self.Control_Combox.addItems(Get_Values_list(interface_Path,key1 = "controller"))
@@ -284,7 +216,11 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         
         for i in interface_Controller:
             if i["name"] == Controller_Type_Select:
-                Controller_target = i
+                if i["type"] == "Adb":
+                    Controller_target = i
+                    del Controller_target['type'] 
+                else:
+                    Controller_target = i
         MAA_Pi_Config = Read_Config(maa_pi_config_Path)
         MAA_Pi_Config["controller"] = Controller_target
         Save_Config(maa_pi_config_Path,MAA_Pi_Config)
@@ -329,6 +265,16 @@ class TaskInterface(Ui_Task_Interface, QWidget):
     def Start_ADB_Detection(self):  
     # 检测ADB线程  
         self._auto_detect_adb_thread.start() 
+        InfoBar.info(
+            title='提示',
+            content="正在检测模拟器",
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM_RIGHT,
+            duration=2000,    # won't disappear automatically
+            parent=self
+        )
+
     
     def On_ADB_Detected(self, emu):
         global emu_data
@@ -367,7 +313,6 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         for i in emu_data:
             if i["name"] == target:
                 result = i
-        print(result)
 
         self.settingInterface = SettingInterface(self)
 
