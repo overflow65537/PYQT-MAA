@@ -1,12 +1,18 @@
 from maa.notification_handler import NotificationHandler, NotificationType
-from qfluentwidgets import TextEdit
+from PyQt6.QtCore import  pyqtSignal, QObject
 from datetime import datetime  
 
 
+class callbackSignal(QObject):  
+    callback = pyqtSignal(str) 
+
+
 class MyNotificationHandler(NotificationHandler):
-    def __init__(self, TaskOutput_Text : TextEdit):  
-        super().__init__()  
-        self.TaskOutput_Text = TaskOutput_Text
+    
+    def __init__(self, parent=None):   
+        self.callbackSignal = callbackSignal()
+        
+
     
     def on_resource_loading(
         self,
@@ -23,17 +29,17 @@ class MyNotificationHandler(NotificationHandler):
     ):
         now_time = datetime.now().strftime("%H:%M:%S") 
         if noti_type.value == 1:
-            self.TaskOutput_Text.append(f"{now_time}"+" 连接中")
+            self.callbackSignal.callback.emit(f"{now_time}"+" 连接中")
         elif noti_type.value == 2:
-            self.TaskOutput_Text.append(f"{now_time}"+" 连接成功")
+            self.callbackSignal.callback.emit(f"{now_time}"+" 连接成功")
         elif noti_type.value == 3:
-            self.TaskOutput_Text.append(f"{now_time}"+" 连接失败")
+            self.callbackSignal.callback.emit(f"{now_time}"+" 连接失败")
         else:
-            self.TaskOutput_Text.append(f"{now_time}"+" 连接状态未知")
+            self.callbackSignal.callback.emit(f"{now_time}"+" 连接状态未知")
 
     def on_tasker_task(
         self, noti_type: NotificationType, detail: NotificationHandler.TaskerTaskDetail
             ):
         now_time = datetime.now().strftime("%H:%M:%S") 
         status_map = {  0: "未知",  1: "运行中",  2: "成功",  3: "失败"  }  
-        self.TaskOutput_Text.append(f"{now_time}"+" "+f"{detail.entry}"+" "+f"{status_map[noti_type.value]}")
+        self.callbackSignal.callback.emit(f"{now_time}"+" "+f"{detail.entry}"+" "+f"{status_map[noti_type.value]}")
