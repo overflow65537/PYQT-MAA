@@ -1,12 +1,13 @@
-from PyQt6 import QtCore
-from PyQt6.QtWidgets import QSizePolicy, QVBoxLayout, QHBoxLayout, QGridLayout
-from qfluentwidgets import PushButton, BodyLabel, ComboBox, ListWidget, TextEdit
+from PyQt6.QtCore import QSize
+from PyQt6.QtWidgets import QSizePolicy, QVBoxLayout, QHBoxLayout, QGridLayout, QFrame, QAbstractItemView
+from qfluentwidgets import PushButton, BodyLabel, ComboBox, TextEdit
+from ..utils.RewriteListWidget import RewriteListWidget
 
 class Ui_Task_Interface(object):
     def setupUi(self, Task_Interface):
         Task_Interface.setObjectName("Task_Interface")
         Task_Interface.resize(900, 600)
-        Task_Interface.setMinimumSize(QtCore.QSize(0, 0))
+        Task_Interface.setMinimumSize(QSize(0, 0))
         # 设置主窗口  
         self.main_layout = QHBoxLayout(self)
 
@@ -121,32 +122,50 @@ class Ui_Task_Interface(object):
         self.MoveDown_Button.setText('下移')
         self.Delete_Button.setText('删除')
         self.AddTask_Button.setText('添加')
+        self.line = QFrame()  
+        self.line.setFrameShape(QFrame.Shape.HLine)  
+        self.line.setFrameShadow(QFrame.Shadow.Plain)  
+
+        self.line1 = QFrame()  
+        self.line1.setFrameShape(QFrame.Shape.HLine)  
+        self.line1.setFrameShadow(QFrame.Shadow.Plain)  
 
         self.AddMission_layout.addWidget(self.TaskName_Title_1, 0, 0)
-        self.AddMission_layout.addWidget(self.TaskName_Title_2, 1, 0)
-        self.AddMission_layout.addWidget(self.TaskName_Title_3, 2, 0)
-        self.AddMission_layout.addWidget(self.TaskName_Title_4, 3, 0)
+        self.AddMission_layout.addWidget(self.line, 1, 0)
+        self.AddMission_layout.addWidget(self.TaskName_Title_2, 2, 0)
+        self.AddMission_layout.addWidget(self.TaskName_Title_3, 3, 0)
+        self.AddMission_layout.addWidget(self.TaskName_Title_4, 4, 0)
 
         self.AddMission_layout.addWidget(self.SelectTask_Combox_1, 0, 1)
-        self.AddMission_layout.addWidget(self.SelectTask_Combox_2, 1, 1)
-        self.AddMission_layout.addWidget(self.SelectTask_Combox_3, 2, 1)
-        self.AddMission_layout.addWidget(self.SelectTask_Combox_4, 3, 1)
+        self.AddMission_layout.addWidget(self.line1, 1, 1)
+        self.AddMission_layout.addWidget(self.SelectTask_Combox_2, 2, 1)
+        self.AddMission_layout.addWidget(self.SelectTask_Combox_3, 3, 1)
+        self.AddMission_layout.addWidget(self.SelectTask_Combox_4, 4, 1)
 
-        self.AddMission_layout.addWidget(self.MoveUp_Button, 0, 2)
-        self.AddMission_layout.addWidget(self.MoveDown_Button, 1, 2)
-        self.AddMission_layout.addWidget(self.Delete_Button, 2, 2)
-        self.AddMission_layout.addWidget(self.AddTask_Button, 3, 2)
+        
+        self.AddMission_layout.addWidget(self.AddTask_Button, 0, 2)
+        self.AddMission_layout.addWidget(self.MoveUp_Button, 2, 2)
+        self.AddMission_layout.addWidget(self.MoveDown_Button, 3, 2)
+        self.AddMission_layout.addWidget(self.Delete_Button, 4, 2)
+        
         self.AddMission_layout.setColumnStretch(1, 10)
 
         #左侧布局
+        self.line2 = QFrame()  
+        self.line2.setFrameShape(QFrame.Shape.HLine)  
+        self.line2.setFrameShadow(QFrame.Shadow.Plain)  
+
         self.left_layout = QVBoxLayout()  
         self.left_layout.addLayout(self.AddMission_layout)
         self.left_layout.addStretch()
+        self.left_layout.addWidget(self.line2)
         self.left_layout.addLayout(self.LD5_layout)
   
         # 中间布局（包含任务列表）  
         self.middle_layout = QVBoxLayout() 
-        self.Task_List = ListWidget(Task_Interface)  
+        self.Task_List = RewriteListWidget(Task_Interface)  
+        self.Task_List.setDragEnabled(True)
+        self.Task_List.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.Topic_Text = TextEdit(Task_Interface) 
         self.Topic_Text.setReadOnly(True)
         self.Topic_Text.setObjectName('Topic_Text')
@@ -164,6 +183,8 @@ class Ui_Task_Interface(object):
         self.right_layout.addWidget(self.TaskOutput_Text)  
   
         # 将子布局添加到主布局中  
-        self.main_layout.addLayout(self.left_layout)  
-        self.main_layout.addLayout(self.middle_layout)  
+        self.main_layout.addLayout(self.left_layout)
+        self.main_layout.addLayout(self.middle_layout) 
         self.main_layout.addLayout(self.right_layout)  
+    
+

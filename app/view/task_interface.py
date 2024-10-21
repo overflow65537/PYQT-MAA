@@ -59,6 +59,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.AutoDetect_Button.clicked.connect(self.Start_ADB_Detection)
         self.S2_Button.clicked.connect(self.Start_Up)
         self.Autodetect_combox.currentTextChanged.connect(self.Save_ADB_Config)
+        self.Task_List.currentRowChanged.connect(self.Task_List_Changed)
 
     def First_Start(self, interface_Path, maa_pi_config_Path, resource_Path):
         # 资源文件和配置文件全存在
@@ -107,6 +108,8 @@ class TaskInterface(Ui_Task_Interface, QWidget):
 
         Toolkit.pi_run_cli(os.getcwd(), os.getcwd(), True, notification_handler=self.MyNotificationHandler)
 
+    def Task_List_Changed(self,msg):
+        pass
     def Add_Task(self):
     # 添加任务
         Option = []
