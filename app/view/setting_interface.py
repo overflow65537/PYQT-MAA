@@ -147,16 +147,14 @@ class SettingInterface(ScrollArea):
             FIF.HELP,
             self.tr('Help'),
             self.tr(
-                'Discover new features and learn useful \
-                    tips about PyQt-Fluent-Widgets'),
+                'Discover new features and learn useful tips about PyQt-MAA'),
             self.aboutGroup
         )
         self.feedbackCard = PrimaryPushSettingCard(
             self.tr('Provide feedback'),
             FIF.FEEDBACK,
             self.tr('Provide feedback'),
-            self.tr('Help us improve PyQt-Fluent-Widgets \
-                    by providing feedback'),
+            self.tr('Help us improve PyQt-MAA by providing feedback'),
             self.aboutGroup
         )
         self.aboutCard = PrimaryPushSettingCard(

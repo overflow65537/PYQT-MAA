@@ -447,8 +447,8 @@ install
 # Tools
 tools/ImageCropper/**/*.png
 resource/*
+!resource/.gitkeep
 interface.json
-!resource/base/model/*
 maa_option.json
 maa_pi_config.json
 config/config.json

@@ -55,11 +55,11 @@ class Config(QConfig):
 YEAR = 2024
 AUTHOR = "overflow"
 VERSION = __version__
-HELP_URL = "https://qfluentwidgets.com"
-REPO_URL = "https://github.com/zhiyiYo/PyQt-Fluent-Widgets"
-EXAMPLE_URL = "https://github.com/zhiyiYo/PyQt-Fluent-Widgets/tree/PyQt6/examples"
-FEEDBACK_URL = "https://github.com/zhiyiYo/PyQt-Fluent-Widgets/issues"
-RELEASE_URL = "https://github.com/zhiyiYo/PyQt-Fluent-Widgets/releases/latest"
+HELP_URL = "https://github.com/overflow65537/PYQT-MAA/"
+REPO_URL = "https://github.com/overflow65537/PYQT-MAA/"
+EXAMPLE_URL = "https://github.com/overflow65537/PYQT-MAA/"
+FEEDBACK_URL = "https://github.com/overflow65537/PYQT-MAA/issues/"
+RELEASE_URL = "https://github.com/overflow65537/PYQT-MAA/releases/latest/"
 ZH_SUPPORT_URL = "https://qfluentwidgets.com/zh/price/"
 EN_SUPPORT_URL = "https://qfluentwidgets.com/price/"
 
