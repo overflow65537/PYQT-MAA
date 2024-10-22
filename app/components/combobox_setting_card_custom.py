@@ -8,7 +8,7 @@ from ..utils.tool import Read_Config, Save_Config
 import os
 
 
-class CustomComboBoxSettingCard(SettingCard):
+class ComboBoxSettingCardCustom(SettingCard):
     """ Setting card with a combo box """
 
     def __init__(self,

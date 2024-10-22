@@ -8,7 +8,7 @@ from ..utils.tool import Read_Config, Save_Config
 import os
 
 
-class CustomSwitchSettingCard(SettingCard):
+class SwitchSettingCardCustom(SettingCard):
 
     checkedChanged = pyqtSignal(bool)
 

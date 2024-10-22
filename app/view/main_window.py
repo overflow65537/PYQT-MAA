@@ -14,6 +14,8 @@ from .task_interface import TaskInterface
 from .custom_setting_interface import CustomSettingInterface
 from ..common.config import cfg
 from ..common.signal_bus import signalBus
+from ..common import resource
+
 
 
 class MainWindow(FluentWindow):

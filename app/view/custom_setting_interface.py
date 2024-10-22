@@ -6,8 +6,8 @@ from PyQt6.QtWidgets import QWidget, QLabel
 
 from ..common.style_sheet import StyleSheet
 from ..components.line_edit_card import LineEditCard
-from ..components.custom_ComboBox_Setting_Card import CustomComboBoxSettingCard
-from ..components.custom_Switch_Setting_Card import CustomSwitchSettingCard
+from ..components.combobox_setting_card_custom import ComboBoxSettingCardCustom
+from ..components.switch_setting_card_custom import SwitchSettingCardCustom
 from ..utils.tool import Read_Config, Save_Config
 import os
 
@@ -57,7 +57,7 @@ class CustomSettingInterface(ScrollArea):
 
     def CreateOption(self, dict: dict):
         if dict["optiontype"] == "combox":
-            self.combox = CustomComboBoxSettingCard(
+            self.combox = ComboBoxSettingCardCustom(
                 icon=FIF.SETTING,
                 title=dict["text"]["title"],
                 content=dict["text"]["content"],
@@ -86,7 +86,7 @@ class CustomSettingInterface(ScrollArea):
             self.CustomSettingGroup.addSettingCard(self.lineedit)
 
         elif dict["optiontype"] == "switch":
-            self.Switch = CustomSwitchSettingCard(
+            self.Switch = SwitchSettingCardCustom(
                 icon=FIF.COMMAND_PROMPT,
                 title=dict["text"]["title"],
                 content=dict["text"]["content"],

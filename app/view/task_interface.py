@@ -6,8 +6,8 @@ from qfluentwidgets import InfoBar, InfoBarPosition
 
 from ..view.UI_task_interface import Ui_Task_Interface
 from ..view.setting_interface import SettingInterface
-from ..utils.Notification import MyNotificationHandler
-from ..utils.AutoDetectADBThread import AutoDetectADBThread
+from ..logic.notification import MyNotificationHandler
+from ..logic.auto_detect_ADB_Thread import AutoDetectADBThread
 from ..utils.tool import (Get_Values_list_Option, Get_Values_list, gui_init,
                           Save_Config, Read_Config, Get_Values_list2,
                           Get_Task_List)

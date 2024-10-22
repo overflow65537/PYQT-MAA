@@ -2,7 +2,7 @@ from PyQt6.QtCore import QSize
 from PyQt6.QtWidgets import (QSizePolicy, QVBoxLayout, QHBoxLayout,
                              QGridLayout, QFrame, QAbstractItemView)
 from qfluentwidgets import PushButton, BodyLabel, ComboBox, TextEdit
-from ..utils.RewriteListWidget import RewriteListWidget
+from ..components.listwidge_menu_draggable import ListWidge_Menu_Draggable
 
 
 class Ui_Task_Interface(object):
@@ -165,7 +165,7 @@ class Ui_Task_Interface(object):
 
         # 中间布局（包含任务列表）
         self.middle_layout = QVBoxLayout()
-        self.Task_List = RewriteListWidget(Task_Interface)
+        self.Task_List = ListWidge_Menu_Draggable(Task_Interface)
         self.Task_List.setDragEnabled(True)
         self.Task_List.setDragDropMode(
             QAbstractItemView.DragDropMode.InternalMove)
