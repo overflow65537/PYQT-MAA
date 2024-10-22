@@ -2,15 +2,17 @@
 from qfluentwidgets import (SettingCardGroup, SwitchSettingCard,
                             OptionsSettingCard, PushSettingCard,
                             HyperlinkCard, PrimaryPushSettingCard, ScrollArea,
-                            ComboBoxSettingCard, ExpandLayout, CustomColorSettingCard,
-                            setTheme, setThemeColor, ConfigItem)
+                            ComboBoxSettingCard, ExpandLayout,
+                            CustomColorSettingCard, setTheme, setThemeColor,
+                            ConfigItem)
 from qfluentwidgets import FluentIcon as FIF
 from qfluentwidgets import InfoBar
 from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWidgets import QWidget, QLabel, QFileDialog
 
-from ..common.config import cfg, HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR, isWin11
+from ..common.config import (cfg, HELP_URL, FEEDBACK_URL, AUTHOR, VERSION,
+                             YEAR, isWin11)
 from ..common.signal_bus import signalBus
 from ..common.style_sheet import StyleSheet
 from ..components.line_edit_card import LineEditCard
@@ -26,14 +28,14 @@ class SettingInterface(ScrollArea):
         self.scrollWidget = QWidget()
         self.expandLayout = ExpandLayout(self.scrollWidget)
 
-
         global maa_pi_config_Path
-        maa_pi_config_Path = os.path.join(os.getcwd(),"config","maa_pi_config.json")
+        maa_pi_config_Path = os.path.join(
+            os.getcwd(), "config", "maa_pi_config.json")
         # setting label
         self.settingLabel = QLabel(self.tr("Settings"), self)
 
         # ADB Group
-        
+
         if os.path.exists(maa_pi_config_Path):
             pi_config = Read_Config(maa_pi_config_Path)
             Port_data = pi_config["adb"]["address"].split(':')[1]
@@ -47,7 +49,7 @@ class SettingInterface(ScrollArea):
         self.ADBPort = LineEditCard(
             FIF.COMMAND_PROMPT,
             Port_data,
-            title = self.tr("ADB Port"),
+            title=self.tr("ADB Port"),
             parent=self.ADB_Path_Port_Adjuster
         )
         self.ADBPath = PushSettingCard(
@@ -107,8 +109,10 @@ class SettingInterface(ScrollArea):
         )
 
         # 调试模式
-        if os.path.exists(os.path.join(os.getcwd(),"config","maa_option.json")):
-            DEV_Config = Read_Config(os.path.join(os.getcwd(),"config","maa_option.json"))["save_draw"]
+        if os.path.exists(os.path.join(os.getcwd(), "config",
+                                       "maa_option.json")):
+            DEV_Config = Read_Config(os.path.join(
+                os.getcwd(), "config", "maa_option.json"))["save_draw"]
         else:
             DEV_Config = False
         self.DEVGroup = SettingCardGroup(
@@ -116,8 +120,10 @@ class SettingInterface(ScrollArea):
         self.DEVmodeCard = SwitchSettingCard(
             FIF.ALBUM,
             self.tr('DEV mode switch'),
-            self.tr('When the debug mode is enabled, screenshots will be saved in ./debug/vision'),
-            configItem=ConfigItem(group="DEV",name="DEV" , default=DEV_Config),
+            self.tr(
+                'When the debug mode is enabled, \
+                    screenshots will be saved in ./debug/vision'),
+            configItem=ConfigItem(group="DEV", name="DEV", default=DEV_Config),
             parent=self.DEVGroup
         )
 
@@ -127,7 +133,8 @@ class SettingInterface(ScrollArea):
         self.updateOnStartUpCard = SwitchSettingCard(
             FIF.UPDATE,
             self.tr('Check for updates when the application starts'),
-            self.tr('The new version will be more stable and have more features'),
+            self.tr('The new version will be more \
+                    stable and have more features'),
             configItem=cfg.checkUpdateAtStartUp,
             parent=self.updateSoftwareGroup
         )
@@ -140,14 +147,16 @@ class SettingInterface(ScrollArea):
             FIF.HELP,
             self.tr('Help'),
             self.tr(
-                'Discover new features and learn useful tips about PyQt-Fluent-Widgets'),
+                'Discover new features and learn useful \
+                    tips about PyQt-Fluent-Widgets'),
             self.aboutGroup
         )
         self.feedbackCard = PrimaryPushSettingCard(
             self.tr('Provide feedback'),
             FIF.FEEDBACK,
             self.tr('Provide feedback'),
-            self.tr('Help us improve PyQt-Fluent-Widgets by providing feedback'),
+            self.tr('Help us improve PyQt-Fluent-Widgets \
+                    by providing feedback'),
             self.aboutGroup
         )
         self.aboutCard = PrimaryPushSettingCard(
@@ -163,7 +172,8 @@ class SettingInterface(ScrollArea):
 
     def __initWidget(self):
         self.resize(1000, 800)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setViewportMargins(0, 80, 0, 20)
         self.setWidget(self.scrollWidget)
         self.setWidgetResizable(True)
@@ -221,14 +231,15 @@ class SettingInterface(ScrollArea):
 
     def __onADBPathCardClicked(self):
         """ 手动选择ADB.exe位置"""
-        file_name, _ = QFileDialog.getOpenFileName(  
-            self, self.tr("Choose file"), "./", self.tr("All Files (*);;All Files (*)"))  
-        if not file_name:  
-            return  
+        file_name, _ = QFileDialog.getOpenFileName(
+            self, self.tr("Choose file"), "./",
+            self.tr("All Files (*);;All Files (*)"))
+        if not file_name:
+            return
 
         data = Read_Config(maa_pi_config_Path)
         data["adb"]["adb_path"] = file_name
-        Save_Config(maa_pi_config_Path,data)
+        Save_Config(maa_pi_config_Path, data)
         self.ADBPath.setContent(file_name)
 
     def __connectSignalToSlot(self):
@@ -250,17 +261,16 @@ class SettingInterface(ScrollArea):
         # about
         self.feedbackCard.clicked.connect(
             lambda: QDesktopServices.openUrl(QUrl(FEEDBACK_URL)))
-        
+
     def _onADBPortCardChange(self):
-        port =self.ADBPort.lineEdit.text()
+        port = self.ADBPort.lineEdit.text()
         full_ADB_address = f'127.0.0.1:{port}'
         data = Read_Config(maa_pi_config_Path)
         data["adb"]["address"] = full_ADB_address
-        Save_Config(maa_pi_config_Path,data)
-
+        Save_Config(maa_pi_config_Path, data)
 
     def _onDEVmodeCardChange(self):
         state = self.DEVmodeCard.isChecked()
         data = Read_Config(maa_pi_config_Path)
         data["save_draw"] = state
-        Save_Config(maa_pi_config_Path,data)
+        Save_Config(maa_pi_config_Path, data)

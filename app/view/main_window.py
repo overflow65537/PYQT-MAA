@@ -1,9 +1,9 @@
 # coding: utf-8
-from PyQt6.QtCore import Qt, pyqtSignal, QEasingCurve, QUrl, QSize, QTimer
-from PyQt6.QtGui import QIcon, QDesktopServices, QColor
-from PyQt6.QtWidgets import QApplication, QHBoxLayout, QFrame, QWidget
+from PyQt6.QtCore import QSize, QTimer
+from PyQt6.QtGui import QIcon
+from PyQt6.QtWidgets import QApplication
 
-from qfluentwidgets import (NavigationAvatarWidget, NavigationItemPosition, MessageBox, FluentWindow,
+from qfluentwidgets import (NavigationItemPosition, FluentWindow,
                             SplashScreen, SystemThemeListener, isDarkTheme)
 from qfluentwidgets import FluentIcon as FIF
 
@@ -12,11 +12,8 @@ import os
 from .setting_interface import SettingInterface
 from .task_interface import TaskInterface
 from .custom_setting_interface import CustomSettingInterface
-from ..common.config import ZH_SUPPORT_URL, EN_SUPPORT_URL, cfg
-from ..common.icon import Icon
+from ..common.config import cfg
 from ..common.signal_bus import signalBus
-from ..common.translator import Translator
-from ..common import resource
 
 
 class MainWindow(FluentWindow):
@@ -32,9 +29,6 @@ class MainWindow(FluentWindow):
         self.taskInterface = TaskInterface(self)
         self.settingInterface = SettingInterface(self)
         self.customsettingInterface = CustomSettingInterface(self)
-        
-
-
 
         # enable acrylic effect
         self.navigationInterface.setAcrylicEnabled(True)
@@ -53,27 +47,23 @@ class MainWindow(FluentWindow):
 
     def initNavigation(self):
         # add navigation items
-        t = Translator()
 
         self.navigationInterface.addSeparator()
 
-        pos = NavigationItemPosition.SCROLL
-
-
         # add custom widget to bottom
 
-       
-        if os.path.exists(os.path.join(os.getcwd(),"config","custom.json")):
-            self.addSubInterface(self.taskInterface, FIF.CHECKBOX,self.tr('Task'))
-            self.addSubInterface(self.customsettingInterface, FIF.IOT,self.tr('Custom Setting'))
-            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('Settings'), NavigationItemPosition.BOTTOM)
+        if os.path.exists(os.path.join(os.getcwd(), "config", "custom.json")):
+            self.addSubInterface(self.taskInterface,
+                                 FIF.CHECKBOX, self.tr('Task'))
+            self.addSubInterface(self.customsettingInterface,
+                                 FIF.IOT, self.tr('Custom Setting'))
+            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr(
+                'Settings'), NavigationItemPosition.BOTTOM)
         else:
-            self.addSubInterface(self.taskInterface, FIF.CHECKBOX,self.tr('Task'))
-            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr('Settings'), NavigationItemPosition.BOTTOM)
-        
-        
-
-        
+            self.addSubInterface(self.taskInterface,
+                                 FIF.CHECKBOX, self.tr('Task'))
+            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr(
+                'Settings'), NavigationItemPosition.BOTTOM)
 
     def initWindow(self):
         self.resize(960, 780)
@@ -109,5 +99,5 @@ class MainWindow(FluentWindow):
 
         # retry
         if self.isMicaEffectEnabled():
-            QTimer.singleShot(100, lambda: self.windowEffect.setMicaEffect(self.winId(), isDarkTheme()))
-
+            QTimer.singleShot(100, lambda: self.windowEffect.setMicaEffect(
+                self.winId(), isDarkTheme()))
