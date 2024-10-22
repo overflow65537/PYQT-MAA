@@ -17,7 +17,6 @@ from ..common.signal_bus import signalBus
 from ..common import resource
 
 
-
 class MainWindow(FluentWindow):
 
     def __init__(self):
