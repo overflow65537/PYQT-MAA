@@ -4,7 +4,7 @@
 - Python 3.12
 
 ## 使用方法
-- 将 MaaFramework 的资源文件夹 `resource` 和`interface.json` 放入项目根目录
+- 将 MaaFramework 的资源文件夹 `resource` 和 `interface.json` 放入项目根目录
 - `pip install -r requirements.txt`
 - `python main.py`
 
@@ -49,9 +49,9 @@
 
 ## 致谢
 ### 开源项目
-- [PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)\
+- **[PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)**
     A fluent design widgets library based on C++ Qt/PyQt/PySide. Make Qt Great Again.
-- [MaaFramework](https://github.com/MaaAssistantArknights/MaaFramework)\
+- **[MaaFramework](https://github.com/MaaAssistantArknights/MaaFramework)**
     基于图像识别的自动化黑盒测试框架。
 
 ### 开发者
