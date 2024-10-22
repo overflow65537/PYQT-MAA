@@ -1,5 +1,4 @@
 # PYQT-MAA
-
 ## 开发环境
 - Python 3.12
 
@@ -49,9 +48,9 @@
 
 ## 致谢
 ### 开源项目
-- **[PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)**
+- **[PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)**\
     A fluent design widgets library based on C++ Qt/PyQt/PySide. Make Qt Great Again.
-- **[MaaFramework](https://github.com/MaaAssistantArknights/MaaFramework)**
+- **[MaaFramework](https://github.com/MaaAssistantArknights/MaaFramework)**\
     基于图像识别的自动化黑盒测试框架。
 
 ### 开发者
