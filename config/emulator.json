@@ -47,6 +47,31 @@
         ]
     },
     {
+        "name": "MuMu6",
+        "exe_name": "NemuPlayer.exe",
+        "may_path": [
+            [
+                "vmonitor",
+                "bin",
+                "adb_server.exe"
+            ],
+            [
+                "MuMu",
+                "emulator",
+                "nemu",
+                "vmonitor",
+                "bin",
+                "adb_server.exe"
+            ],
+            [
+                "adb.exe"
+            ]
+        ],
+        "port": [
+            "127.0.0.1:7555"
+        ]
+    },
+    {
         "name": "LDPlayer",
         "exe_name": "dnplayer.exe",
         "may_path": [
@@ -70,31 +95,6 @@
         "port": [
             "127.0.0.1:62001",
             "127.0.0.1:59865"
-        ]
-    },
-    {
-        "name": "MuMu6",
-        "exe_name": "NemuPlayer.exe",
-        "may_path": [
-            [
-                "vmonitor",
-                "bin",
-                "adb_server.exe"
-            ],
-            [
-                "MuMu",
-                "emulator",
-                "nemu",
-                "vmonitor",
-                "bin",
-                "adb_server.exe"
-            ],
-            [
-                "adb.exe"
-            ]
-        ],
-        "port": [
-            "127.0.0.1:7555"
         ]
     },
     {
