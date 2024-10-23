@@ -68,7 +68,7 @@ For details, see **[PyQt6 Commercial Use](https://www.qt.io/qt-licensing)** and 
     基于图像识别的自动化黑盒测试框架。
 
 ### Developers
-Thanks to the following developers for their contributions to PyQt-MAA:
+Thanks to the following developers for their contributions to PyQt-MAA.
 
 <a href="https://github.com/overflow65537/PYQT-MAA/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=overflow65537/PYQT-MAA&max=1000" />
