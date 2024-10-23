@@ -64,14 +64,14 @@ class SettingInterface(ScrollArea):
         self.ADBPort = LineEditCard(
             FIF.COMMAND_PROMPT,
             Port_data,
-            title=self.tr("ADB Port"),
+            title=self.tr("ADB 端口"),  # TODO:i18n
             parent=self.ADB_Path_Port_Adjuster,
         )
-        self.ADBPath = PushSettingCard(
-            self.tr("Choose ADB"),
+        self.ADBPath = PrimaryPushSettingCard(
+            self.tr("选择 ADB 路径"),  # TODO:i18n
             FIF.COMMAND_PROMPT,
-            self.tr("ADB Path"),
-            path_data,
+            self.tr("ADB 路径"),
+            f"当前路径：{path_data}",
             self.ADB_Path_Port_Adjuster,
         )
 
@@ -156,7 +156,7 @@ class SettingInterface(ScrollArea):
             self.tr("提交反馈"),  # TODO:i18n
             FIF.FEEDBACK,
             self.tr("提交反馈"),
-            self.tr("通过提交反馈的方式帮助我们改进 PyQt-MAA"),
+            self.tr("提交反馈以帮助我们改进 PyQt-MAA"),
             self.aboutGroup,
         )
         self.aboutCard = PrimaryPushSettingCard(
