@@ -21,6 +21,7 @@ from ..utils.tool import (
     Get_Task_List,
     check_path_for_keyword,
 )
+from ..common.config import cfg
 
 
 class TaskInterface(Ui_Task_Interface, QWidget):
@@ -30,16 +31,14 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.setupUi(self)
 
         # 资源文件位置
-        global interface_Path
-        global maa_pi_config_Path
-        global resource_Path
-        interface_Path = os.path.join(os.getcwd(), "interface.json")
-        maa_pi_config_Path = os.path.join(os.getcwd(), "config", "maa_pi_config.json")
-        resource_Path = os.path.join(os.getcwd(), "resource")
         # 初始化组件
         self._auto_detect_adb_thread = AutoDetectADBThread(self)
         self.MyNotificationHandler = MyNotificationHandler(self)
-        self.Start_Status(interface_Path, maa_pi_config_Path, resource_Path)
+        self.Start_Status(
+            interface_Path=cfg.get(cfg.Maa_interface),
+            maa_pi_config_Path=cfg.get(cfg.Maa_config),
+            resource_Path=cfg.get(cfg.Maa_resource),
+        )
         self.init_widget()
 
     def init_widget(self):
@@ -160,7 +159,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         # 添加任务
         Option = []
         Select_Target = self.SelectTask_Combox_1.currentText()
-        MAA_Pi_Config = Read_Config(interface_Path)
+        MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_interface))
         Option_list = []
 
         for i in MAA_Pi_Config["task"]:
@@ -180,18 +179,18 @@ class TaskInterface(Ui_Task_Interface, QWidget):
                         {"name": i["option"][index], "value": selected_value}
                     )
                 Option.extend(options_dicts)
-        MAA_Pi_Config = Read_Config(maa_pi_config_Path)
+        MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_config))
         MAA_Pi_Config["task"].append({"name": Select_Target, "option": Option})
-        Save_Config(maa_pi_config_Path, MAA_Pi_Config)
+        Save_Config(cfg.get(cfg.Maa_config), MAA_Pi_Config)
         self.Task_List.clear()
-        self.Task_List.addItems(Get_Values_list_Option(maa_pi_config_Path, "task"))
+        self.Task_List.addItems(Get_Values_list_Option(cfg.get(cfg.Maa_config), "task"))
 
     def Delete_Task(self):
 
         Select_Target = self.Task_List.currentRow()
 
         self.Task_List.takeItem(Select_Target)
-        Task_List = Get_Values_list2(maa_pi_config_Path, "task")
+        Task_List = Get_Values_list2(cfg.get(cfg.Maa_config), "task")
         try:
             del Task_List[Select_Target]
         except IndexError:
@@ -205,10 +204,10 @@ class TaskInterface(Ui_Task_Interface, QWidget):
                 parent=self,
             )
         else:
-            MAA_Pi_Config = Read_Config(maa_pi_config_Path)
+            MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_config))
             del MAA_Pi_Config["task"]
             MAA_Pi_Config.update({"task": Task_List})
-            Save_Config(maa_pi_config_Path, MAA_Pi_Config)
+            Save_Config(cfg.get(cfg.Maa_config), MAA_Pi_Config)
         if Select_Target == 0:
             self.Task_List.setCurrentRow(Select_Target)
         elif Select_Target != -1:
@@ -228,18 +227,20 @@ class TaskInterface(Ui_Task_Interface, QWidget):
                 parent=self,
             )
         elif Select_Target != -1:
-            MAA_Pi_Config = Read_Config(maa_pi_config_Path)
+            MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_config))
             Select_Task = MAA_Pi_Config["task"].pop(Select_Target)
             MAA_Pi_Config["task"].insert(Select_Target - 1, Select_Task)
-            Save_Config(maa_pi_config_Path, MAA_Pi_Config)
+            Save_Config(cfg.get(cfg.Maa_config), MAA_Pi_Config)
             self.Task_List.clear()
-            self.Task_List.addItems(Get_Values_list_Option(maa_pi_config_Path, "task"))
+            self.Task_List.addItems(
+                Get_Values_list_Option(cfg.get(cfg.Maa_config), "task")
+            )
             self.Task_List.setCurrentRow(Select_Target - 1)
 
     def Move_Down(self):
 
         Select_Target = self.Task_List.currentRow()
-        MAA_Pi_Config = Read_Config(maa_pi_config_Path)
+        MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_config))
         if Select_Target >= len(MAA_Pi_Config["task"]) - 1:
             InfoBar.error(
                 title="错误",
@@ -253,20 +254,22 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         elif Select_Target < len(MAA_Pi_Config["task"]):
             Select_Task = MAA_Pi_Config["task"].pop(Select_Target)
             MAA_Pi_Config["task"].insert(Select_Target + 1, Select_Task)
-            Save_Config(maa_pi_config_Path, MAA_Pi_Config)
+            Save_Config(cfg.get(cfg.Maa_config), MAA_Pi_Config)
             self.Task_List.clear()
-            self.Task_List.addItems(Get_Values_list_Option(maa_pi_config_Path, "task"))
+            self.Task_List.addItems(
+                Get_Values_list_Option(cfg.get(cfg.Maa_config), "task")
+            )
             self.Task_List.setCurrentRow(Select_Target + 1)
 
     def Save_Resource(self):
         Resource_Type_Select = self.Resource_Combox.currentText()
-        MAA_Pi_Config = Read_Config(maa_pi_config_Path)
+        MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_config))
         MAA_Pi_Config["resource"] = Resource_Type_Select
-        Save_Config(maa_pi_config_Path, MAA_Pi_Config)
+        Save_Config(cfg.get(cfg.Maa_config), MAA_Pi_Config)
 
     def Save_Controller(self):
         Controller_Type_Select = self.Control_Combox.currentText()
-        interface_Controller = Read_Config(interface_Path)["controller"]
+        interface_Controller = Read_Config(cfg.get(cfg.Maa_interface))["controller"]
 
         for i in interface_Controller:
             if i["name"] == Controller_Type_Select:
@@ -275,9 +278,9 @@ class TaskInterface(Ui_Task_Interface, QWidget):
                     del Controller_target["type"]
                 else:
                     Controller_target = i
-        MAA_Pi_Config = Read_Config(maa_pi_config_Path)
+        MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_config))
         MAA_Pi_Config["controller"] = Controller_target
-        Save_Config(maa_pi_config_Path, MAA_Pi_Config)
+        Save_Config(cfg.get(cfg.Maa_config), MAA_Pi_Config)
 
     def Add_Select_Task_More_Select(self):
 
@@ -285,7 +288,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
 
         select_target = self.SelectTask_Combox_1.currentText()
 
-        MAA_Pi_Config = Read_Config(interface_Path)
+        MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_interface))
 
         for task in MAA_Pi_Config["task"]:
             if task["name"] == select_target and task.get("option") is not None:
