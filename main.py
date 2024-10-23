@@ -2,6 +2,7 @@
 import os
 import sys
 
+import maa
 from PyQt6.QtCore import Qt, QTranslator
 from PyQt6.QtWidgets import QApplication
 from qfluentwidgets import FluentTranslator

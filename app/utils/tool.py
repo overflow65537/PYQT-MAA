@@ -152,3 +152,11 @@ def check_port(port):
         finally:
             s.close()
     return port_result
+
+def check_path_for_keyword(path):
+    keywords_list = ["MuMu", "BlueStacks", "LDPlayer", "Nox", "MEmu", "ADV"]
+    for keyword in keywords_list:
+        if keyword in path:
+            return keyword
+    return "emulator"
+
