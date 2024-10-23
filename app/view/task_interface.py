@@ -70,8 +70,6 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.Autodetect_combox.currentTextChanged.connect(self.Save_ADB_Config)
         self.Task_List.currentRowChanged.connect(self.Task_List_Changed)
 
-        self.Start_ADB_Detection()  # 自动运行 ADB 检测
-
     def First_Start(self, interface_Path, maa_pi_config_Path, resource_Path):
         # 资源文件和配置文件全部存在
         if (
@@ -93,6 +91,10 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             return_init = gui_init(resource_Path, maa_pi_config_Path, interface_Path)
             self.Resource_Combox.setCurrentIndex(return_init["init_Resource_Type"])
             self.Control_Combox.setCurrentIndex(return_init["init_Controller_Type"])
+            if maa_pi_config_Path["adb"]["adb_path"] == "":
+                self.Start_ADB_Detection()
+            else:
+                self.Autodetect_combox.addItem(maa_pi_config_Path["adb"]["adb_path"])
 
         # 配置文件不完全存在
         elif (
@@ -121,6 +123,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             )
             self.Save_Resource()
             self.Save_Controller()
+            self.Start_ADB_Detection()
 
         # 资源文件全部不存在
         else:
