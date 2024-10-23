@@ -19,6 +19,7 @@ from ..utils.tool import (
     Read_Config,
     Get_Values_list2,
     Get_Task_List,
+    check_path_for_keyword,
 )
 
 
@@ -42,8 +43,6 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.init_widget()
 
     def init_widget(self):
-
-
 
         # 隐藏任务选项
         self.SelectTask_Combox_2.hide()
@@ -95,7 +94,9 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             if Read_Config(maa_pi_config_Path)["adb"]["adb_path"] == "":
                 self.Start_ADB_Detection()
             else:
-                self.Autodetect_combox.addItem(Read_Config(maa_pi_config_Path)["adb"]["adb_path"])
+                self.Autodetect_combox.addItem(
+                    f'{check_path_for_keyword(Read_Config(maa_pi_config_Path)["adb"]["adb_path"])} ({Read_Config(maa_pi_config_Path)["adb"]["address"]})'
+                )
 
         # 配置文件不完全存在
         elif (
