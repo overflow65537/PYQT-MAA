@@ -21,7 +21,14 @@ from PyQt6.QtCore import Qt, QUrl
 from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWidgets import QWidget, QLabel, QFileDialog
 
-from ..common.config import cfg, HELP_URL, FEEDBACK_URL, AUTHOR, VERSION, YEAR, isWin11
+from ..common.config import (
+    cfg,
+    VERSION,
+    UPDATE_URL,
+    FEEDBACK_URL,
+    REPO_URL,
+    isWin11,
+)
 from ..common.signal_bus import signalBus
 from ..common.style_sheet import StyleSheet
 from ..components.line_edit_card import LineEditCard
@@ -136,45 +143,27 @@ class SettingInterface(ScrollArea):
             parent=self.DEVGroup,
         )
 
-        # update software
-        self.updateSoftwareGroup = SettingCardGroup(
-            self.tr("Software update"), self.scrollWidget
-        )
-        self.updateOnStartUpCard = SwitchSettingCard(
-            FIF.UPDATE,
-            self.tr("Check for updates when the application starts"),
-            self.tr("The new version will be more stable and have more features"),
-            configItem=cfg.checkUpdateAtStartUp,
-            parent=self.updateSoftwareGroup,
-        )
-
         # application
         self.aboutGroup = SettingCardGroup(self.tr("About"), self.scrollWidget)
-        self.helpCard = HyperlinkCard(
-            HELP_URL,
-            self.tr("Open help page"),
-            FIF.HELP,
-            self.tr("Help"),
-            self.tr("Discover new features and learn useful tips about PyQt-MAA"),
+        self.updateCard = PrimaryPushSettingCard(
+            self.tr("检查更新"),  # TODO:i18n
+            FIF.UPDATE,
+            self.tr("检查更新"),
+            self.tr(f"当前 PyQt-MAA 版本：{VERSION}"),
             self.aboutGroup,
         )
         self.feedbackCard = PrimaryPushSettingCard(
-            self.tr("Provide feedback"),
+            self.tr("提交反馈"),  # TODO:i18n
             FIF.FEEDBACK,
-            self.tr("Provide feedback"),
-            self.tr("Help us improve PyQt-MAA by providing feedback"),
+            self.tr("提交反馈"),
+            self.tr("通过提交反馈的方式帮助我们改进 PyQt-MAA"),
             self.aboutGroup,
         )
         self.aboutCard = PrimaryPushSettingCard(
-            self.tr("Check update"),
+            self.tr("关于我们"),  # TODO:i18n
             FIF.INFO,
-            self.tr("About"),
-            "© "
-            + self.tr("Copyright")
-            + f" {YEAR}, {AUTHOR}. "
-            + self.tr("Version")
-            + " "
-            + VERSION,
+            self.tr("关于"),
+            "PyQt-MAA 使用 GPLv3 许可证进行开源，访问项目地址以获取源码与更多信息",
             self.aboutGroup,
         )
 
@@ -214,9 +203,7 @@ class SettingInterface(ScrollArea):
 
         self.DEVGroup.addSettingCard(self.DEVmodeCard)
 
-        self.updateSoftwareGroup.addSettingCard(self.updateOnStartUpCard)
-
-        self.aboutGroup.addSettingCard(self.helpCard)
+        self.aboutGroup.addSettingCard(self.updateCard)
         self.aboutGroup.addSettingCard(self.feedbackCard)
         self.aboutGroup.addSettingCard(self.aboutCard)
 
@@ -226,7 +213,6 @@ class SettingInterface(ScrollArea):
         self.expandLayout.addWidget(self.ADB_Path_Port_Adjuster)
         self.expandLayout.addWidget(self.personalGroup)
         self.expandLayout.addWidget(self.DEVGroup)
-        self.expandLayout.addWidget(self.updateSoftwareGroup)
         self.expandLayout.addWidget(self.aboutGroup)
 
     def __showRestartTooltip(self):
@@ -268,9 +254,13 @@ class SettingInterface(ScrollArea):
         self.micaCard.checkedChanged.connect(signalBus.micaEnableChanged)
 
         # about
+        self.updateCard.clicked.connect(
+            lambda: QDesktopServices.openUrl(QUrl(UPDATE_URL))
+        )
         self.feedbackCard.clicked.connect(
             lambda: QDesktopServices.openUrl(QUrl(FEEDBACK_URL))
         )
+        self.aboutCard.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(REPO_URL)))
 
     def _onADBPortCardChange(self):
         port = self.ADBPort.lineEdit.text()

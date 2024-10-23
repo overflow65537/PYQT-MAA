@@ -2,24 +2,34 @@ import sys
 from enum import Enum
 
 from PyQt6.QtCore import QLocale
-from qfluentwidgets import (qconfig, QConfig, ConfigItem, OptionsConfigItem, BoolValidator,
-                            OptionsValidator, RangeConfigItem, RangeValidator,
-                            FolderListValidator, Theme, FolderValidator, ConfigSerializer, __version__)
+from qfluentwidgets import (
+    qconfig,
+    QConfig,
+    ConfigItem,
+    OptionsConfigItem,
+    BoolValidator,
+    OptionsValidator,
+    RangeConfigItem,
+    RangeValidator,
+    FolderListValidator,
+    Theme,
+    FolderValidator,
+    ConfigSerializer,
+    __version__,
+)
 
 
 class Language(Enum):
-    """ Language enumeration """
+    """Language enumeration"""
 
-    CHINESE_SIMPLIFIED = QLocale(
-        QLocale.Language.Chinese, QLocale.Country.China)
-    CHINESE_TRADITIONAL = QLocale(
-        QLocale.Language.Chinese, QLocale.Country.HongKong)
+    CHINESE_SIMPLIFIED = QLocale(QLocale.Language.Chinese, QLocale.Country.China)
+    CHINESE_TRADITIONAL = QLocale(QLocale.Language.Chinese, QLocale.Country.HongKong)
     ENGLISH = QLocale(QLocale.Language.English)
     AUTO = QLocale()
 
 
 class LanguageSerializer(ConfigSerializer):
-    """ Language serializer """
+    """Language serializer"""
 
     def serialize(self, language):
         return language.value.name() if language != Language.AUTO else "Auto"
@@ -29,40 +39,47 @@ class LanguageSerializer(ConfigSerializer):
 
 
 def isWin11():
-    return sys.platform == 'win32' and sys.getwindowsversion().build >= 22000
+    return sys.platform == "win32" and sys.getwindowsversion().build >= 22000
 
 
 class Config(QConfig):
-    """ Config of application """
+    """Config of application"""
+
     # main window
-    micaEnabled = ConfigItem("MainWindow", "MicaEnabled",
-                             isWin11(), BoolValidator())
+    micaEnabled = ConfigItem("MainWindow", "MicaEnabled", isWin11(), BoolValidator())
     dpiScale = OptionsConfigItem(
-        "MainWindow", "DpiScale", "Auto", OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]), restart=True)
+        "MainWindow",
+        "DpiScale",
+        "Auto",
+        OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]),
+        restart=True,
+    )
     language = OptionsConfigItem(
-        "MainWindow", "Language", Language.AUTO, OptionsValidator(Language), LanguageSerializer(), restart=True)
+        "MainWindow",
+        "Language",
+        Language.AUTO,
+        OptionsValidator(Language),
+        LanguageSerializer(),
+        restart=True,
+    )
 
     # Material
     blurRadius = RangeConfigItem(
-        "Material", "AcrylicBlurRadius", 15, RangeValidator(0, 40))
+        "Material", "AcrylicBlurRadius", 15, RangeValidator(0, 40)
+    )
 
     # software update
     checkUpdateAtStartUp = ConfigItem(
-        "Update", "CheckUpdateAtStartUp", True, BoolValidator())
+        "Update", "CheckUpdateAtStartUp", True, BoolValidator()
+    )
 
 
-YEAR = 2024
-AUTHOR = "overflow"
 VERSION = __version__
-HELP_URL = "https://github.com/overflow65537/PYQT-MAA/"
 REPO_URL = "https://github.com/overflow65537/PYQT-MAA/"
-EXAMPLE_URL = "https://github.com/overflow65537/PYQT-MAA/"
+UPDATE_URL = "https://github.com/overflow65537/PYQT-MAA/releases/latest/"
 FEEDBACK_URL = "https://github.com/overflow65537/PYQT-MAA/issues/"
-RELEASE_URL = "https://github.com/overflow65537/PYQT-MAA/releases/latest/"
-ZH_SUPPORT_URL = "https://qfluentwidgets.com/zh/price/"
-EN_SUPPORT_URL = "https://qfluentwidgets.com/price/"
 
 
 cfg = Config()
 cfg.themeMode.value = Theme.AUTO
-qconfig.load('config/config.json', cfg)
+qconfig.load("config/config.json", cfg)
