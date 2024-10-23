@@ -39,7 +39,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         # 初始化组件
         self._auto_detect_adb_thread = AutoDetectADBThread(self)
         self.MyNotificationHandler = MyNotificationHandler(self)
-        self.First_Start(interface_Path, maa_pi_config_Path, resource_Path)
+        self.Start_Status(interface_Path, maa_pi_config_Path, resource_Path)
         self.init_widget()
 
     def init_widget(self):
@@ -70,7 +70,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.Autodetect_combox.currentTextChanged.connect(self.Save_ADB_Config)
         self.Task_List.currentRowChanged.connect(self.Task_List_Changed)
 
-    def First_Start(self, interface_Path, maa_pi_config_Path, resource_Path):
+    def Start_Status(self, interface_Path, maa_pi_config_Path, resource_Path):
         # 资源文件和配置文件全部存在
         if (
             os.path.exists(resource_Path)
