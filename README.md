@@ -1,4 +1,11 @@
+<div align="center">
+
 # PYQT-MAA
+**[简体中文](./README.md) | [English](./README-en.md)**
+
+基于 **[PyQT6](https://doc.qt.io/qtforpython-6)** 的 **[MAAFramework](https://github.com/MaaXYZ/MaaFramework)** 通用 GUI 项目
+</div>
+
 ## 开发环境
 - Python 3.12
 
@@ -7,7 +14,7 @@
 - `pip install -r requirements.txt`
 - `python main.py`
 
-## 其他功能
+## 特色功能
 ### Custom 程序配置
 - 创建 `./config/custom.json`
 - 内容为
@@ -15,36 +22,43 @@
 {
     "option1":{
         "optionname":"option1",
+        "optiontype":"combox",
         "text":{
             "title":"下拉框",
             "content":"这是一个下拉框"
         },
-        "optiontype":"combox",
         "optioncontent":["content1","content2","content3"]
 
     },
-    "option3":{
+    "option2":{
         "optionname":"option2",
+        "optiontype":"switch",
         "text":{
             "title":"开关",
             "content":"这是一个开关"
-        },
-        "optiontype":"switch"
+        }
 
     },
-    "option2":{
+    "option3":{
         "optionname":"option3",
+        "optiontype":"lineedit",
         "text":{
             "title":"输入框",
             "content":"这是一个输入框"
         },
-        "optiontype":"lineedit",
         "optioncontent":"content3"
 
     }
 }
 ```
 - 处理后的数据会保存至 `./config/custom_config.json`
+
+## 许可证
+**PyQt-MAA** 使用 **[GPL-3.0 许可证](./LICENSE)** 开源。
+>[!WARNING]
+需要注意的是，**PyQt-MAA** 依赖的部分开源项目使用**双许可证**开源。\
+对于个人非商业用途，您需要遵守 **[GPL-3.0许可证]((./LICENSE))** ；对于商业用途，您需要向有关开发者购买商业许可证。\
+详见 **[PyQt6 商业许可证](https://www.qt.io/qt-licensing)** 与 **[PyQt-Fluent-Widgets 商业许可证](https://github.com/zhiyiYo/PyQt-Fluent-Widgets/blob/master/docs/README_zh.md#%E8%AE%B8%E5%8F%AF%E8%AF%81)** 。
 
 ## 致谢
 ### 开源项目
@@ -54,7 +68,7 @@
     基于图像识别的自动化黑盒测试框架。
 
 ### 开发者
-感谢所有为 **PyQt-MAA** 做出贡献的开发者
+感谢所有为 **PyQt-MAA** 做出贡献的开发者。
 
 <a href="https://github.com/overflow65537/PYQT-MAA/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=overflow65537/PYQT-MAA&max=1000" />
