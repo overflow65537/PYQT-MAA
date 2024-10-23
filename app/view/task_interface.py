@@ -36,13 +36,14 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         maa_pi_config_Path = os.path.join(os.getcwd(), "config", "maa_pi_config.json")
         resource_Path = os.path.join(os.getcwd(), "resource")
         # 初始化组件
+        self._auto_detect_adb_thread = AutoDetectADBThread(self)
+        self.MyNotificationHandler = MyNotificationHandler(self)
         self.First_Start(interface_Path, maa_pi_config_Path, resource_Path)
         self.init_widget()
 
     def init_widget(self):
 
-        self._auto_detect_adb_thread = AutoDetectADBThread(self)
-        self.MyNotificationHandler = MyNotificationHandler(self)
+
 
         # 隐藏任务选项
         self.SelectTask_Combox_2.hide()
@@ -91,10 +92,10 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             return_init = gui_init(resource_Path, maa_pi_config_Path, interface_Path)
             self.Resource_Combox.setCurrentIndex(return_init["init_Resource_Type"])
             self.Control_Combox.setCurrentIndex(return_init["init_Controller_Type"])
-            if maa_pi_config_Path["adb"]["adb_path"] == "":
+            if Read_Config(maa_pi_config_Path)["adb"]["adb_path"] == "":
                 self.Start_ADB_Detection()
             else:
-                self.Autodetect_combox.addItem(maa_pi_config_Path["adb"]["adb_path"])
+                self.Autodetect_combox.addItem(Read_Config(maa_pi_config_Path)["adb"]["adb_path"])
 
         # 配置文件不完全存在
         elif (
