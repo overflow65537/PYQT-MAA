@@ -10,16 +10,12 @@ from ..utils.tool import (
     Get_Values_list2,
 )
 from PyQt6.QtCore import Qt
+from ..common.config import cfg
 
 
 class ListWidge_Menu_Draggable(ListWidget):
     def __init__(self, parent=None):
         super(ListWidge_Menu_Draggable, self).__init__(parent)
-        self.interface_Path = os.path.join(os.getcwd(), "interface.json")
-        self.maa_pi_config_Path = os.path.join(
-            os.getcwd(), "config", "maa_pi_config.json"
-        )
-        self.resource_Path = os.path.join(os.getcwd(), "resource")
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.RightButton:
@@ -57,7 +53,7 @@ class ListWidge_Menu_Draggable(ListWidget):
         Select_Target = self.currentRow()
 
         self.takeItem(Select_Target)
-        Task_List = Get_Values_list2(self.maa_pi_config_Path, "task")
+        Task_List = Get_Values_list2(cfg.get(cfg.Maa_config), "task")
         try:
             del Task_List[Select_Target]
         except IndexError:
@@ -71,10 +67,10 @@ class ListWidge_Menu_Draggable(ListWidget):
                 parent=self,
             )
         else:
-            MAA_Pi_Config = Read_Config(self.maa_pi_config_Path)
+            MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_config))
             del MAA_Pi_Config["task"]
             MAA_Pi_Config.update({"task": Task_List})
-            Save_Config(self.maa_pi_config_Path, MAA_Pi_Config)
+            Save_Config(cfg.get(cfg.Maa_config), MAA_Pi_Config)
         if Select_Target == 0:
             self.setCurrentRow(Select_Target)
         elif Select_Target != -1:
@@ -94,18 +90,18 @@ class ListWidge_Menu_Draggable(ListWidget):
                 parent=self,
             )
         elif Select_Target != -1:
-            MAA_Pi_Config = Read_Config(self.maa_pi_config_Path)
+            MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_config))
             Select_Task = MAA_Pi_Config["task"].pop(Select_Target)
             MAA_Pi_Config["task"].insert(Select_Target - 1, Select_Task)
-            Save_Config(self.maa_pi_config_Path, MAA_Pi_Config)
+            Save_Config(cfg.get(cfg.Maa_config), MAA_Pi_Config)
             self.clear()
-            self.addItems(Get_Values_list_Option(self.maa_pi_config_Path, "task"))
+            self.addItems(Get_Values_list_Option(cfg.get(cfg.Maa_config), "task"))
             self.setCurrentRow(Select_Target - 1)
 
     def Move_Down(self):
 
         Select_Target = self.currentRow()
-        MAA_Pi_Config = Read_Config(self.maa_pi_config_Path)
+        MAA_Pi_Config = Read_Config(cfg.get(cfg.Maa_config))
         if Select_Target >= len(MAA_Pi_Config["task"]) - 1:
             InfoBar.error(
                 title="错误",
@@ -119,9 +115,9 @@ class ListWidge_Menu_Draggable(ListWidget):
         elif Select_Target < len(MAA_Pi_Config["task"]):
             Select_Task = MAA_Pi_Config["task"].pop(Select_Target)
             MAA_Pi_Config["task"].insert(Select_Target + 1, Select_Task)
-            Save_Config(self.maa_pi_config_Path, MAA_Pi_Config)
+            Save_Config(cfg.get(cfg.Maa_config), MAA_Pi_Config)
             self.clear()
-            self.addItems(Get_Values_list_Option(self.maa_pi_config_Path, "task"))
+            self.addItems(Get_Values_list_Option(cfg.get(cfg.Maa_config), "task"))
             self.setCurrentRow(Select_Target + 1)
 
     def dropEvent(self, event):
