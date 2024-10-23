@@ -128,10 +128,9 @@ class SettingInterface(ScrollArea):
         self.DEVGroup = SettingCardGroup(self.tr("DEV Mode"), self.scrollWidget)
         self.DEVmodeCard = SwitchSettingCard(
             FIF.ALBUM,
-            self.tr("DEV mode switch"),
+            self.tr("DEV Mode"),
             self.tr(
-                "When the debug mode is enabled, \
-                    screenshots will be saved in ./debug/vision"
+                "When the DEV Mode is enabled,screenshots will be saved in ./debug/vision"
             ),
             configItem=ConfigItem(group="DEV", name="DEV", default=DEV_Config),
             parent=self.DEVGroup,
@@ -144,10 +143,7 @@ class SettingInterface(ScrollArea):
         self.updateOnStartUpCard = SwitchSettingCard(
             FIF.UPDATE,
             self.tr("Check for updates when the application starts"),
-            self.tr(
-                "The new version will be more \
-                    stable and have more features"
-            ),
+            self.tr("The new version will be more stable and have more features"),
             configItem=cfg.checkUpdateAtStartUp,
             parent=self.updateSoftwareGroup,
         )

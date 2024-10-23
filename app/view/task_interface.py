@@ -70,8 +70,10 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         self.Autodetect_combox.currentTextChanged.connect(self.Save_ADB_Config)
         self.Task_List.currentRowChanged.connect(self.Task_List_Changed)
 
+        self.Start_ADB_Detection()  # 自动运行 ADB 检测
+
     def First_Start(self, interface_Path, maa_pi_config_Path, resource_Path):
-        # 资源文件和配置文件全存在
+        # 资源文件和配置文件全部存在
         if (
             os.path.exists(resource_Path)
             and os.path.exists(interface_Path)
@@ -92,8 +94,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             self.Resource_Combox.setCurrentIndex(return_init["init_Resource_Type"])
             self.Control_Combox.setCurrentIndex(return_init["init_Controller_Type"])
 
-        # 配置文件不在
-
+        # 配置文件不完全存在
         elif (
             os.path.exists(resource_Path)
             and os.path.exists(interface_Path)
@@ -121,7 +122,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             self.Save_Resource()
             self.Save_Controller()
 
-        # 全不在
+        # 资源文件全部不存在
         else:
             InfoBar.error(
                 title="错误",

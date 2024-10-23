@@ -1,6 +1,10 @@
 from PyQt6.QtCore import QThread, pyqtSignal, QObject
-from ..utils.tool import (Read_Config, find_process_by_name,
-                          find_existing_file, check_port)
+from ..utils.tool import (
+    Read_Config,
+    find_process_by_name,
+    find_existing_file,
+    check_port,
+)
 import os
 
 
@@ -16,8 +20,9 @@ class AutoDetectADBThread(QThread):
 
     def run(self):
         emulator_result = []
-        emulator_list = Read_Config(os.path.join(
-            os.getcwd(), "config", "emulator.json"))
+        emulator_list = Read_Config(
+            os.path.join(os.getcwd(), "config", "emulator.json")
+        )
         for app in emulator_list:
             process_path = find_process_by_name(app["exe_name"])
 
@@ -35,12 +40,17 @@ class AutoDetectADBThread(QThread):
                     if port_data:
                         # 判断端口是否存在,是则组合字典,否则放弃
                         emulator_result.extend(
-                            [{"name": app["name"],
-                              "path": ADB_path,
-                              "port": item} for item in port_data])
+                            [
+                                {
+                                    "name": f"{app["name"]} ({item})",
+                                    "path": ADB_path,
+                                    "port": item,
+                                }
+                                for item in port_data
+                            ]
+                        )
 
         if emulator_result:
-
             self.signal.adb_detected.emit(emulator_result)
         else:
             None_ADB_data = []
