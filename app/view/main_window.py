@@ -1,13 +1,17 @@
-# coding: utf-8
+import os
+
 from PyQt6.QtCore import QSize, QTimer
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication
 
-from qfluentwidgets import (NavigationItemPosition, FluentWindow,
-                            SplashScreen, SystemThemeListener, isDarkTheme)
+from qfluentwidgets import (
+    NavigationItemPosition,
+    FluentWindow,
+    SplashScreen,
+    SystemThemeListener,
+    isDarkTheme,
+)
 from qfluentwidgets import FluentIcon as FIF
-
-import os
 
 from .setting_interface import SettingInterface
 from .task_interface import TaskInterface
@@ -54,23 +58,30 @@ class MainWindow(FluentWindow):
         # add custom widget to bottom
 
         if os.path.exists(os.path.join(os.getcwd(), "config", "custom.json")):
-            self.addSubInterface(self.taskInterface,
-                                 FIF.CHECKBOX, self.tr('Task'))
-            self.addSubInterface(self.customsettingInterface,
-                                 FIF.IOT, self.tr('Custom Setting'))
-            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr(
-                'Settings'), NavigationItemPosition.BOTTOM)
+            self.addSubInterface(self.taskInterface, FIF.CHECKBOX, self.tr("Task"))
+            self.addSubInterface(
+                self.customsettingInterface, FIF.IOT, self.tr("Custom Setting")
+            )
+            self.addSubInterface(
+                self.settingInterface,
+                FIF.SETTING,
+                self.tr("Settings"),
+                NavigationItemPosition.BOTTOM,
+            )
         else:
-            self.addSubInterface(self.taskInterface,
-                                 FIF.CHECKBOX, self.tr('Task'))
-            self.addSubInterface(self.settingInterface, FIF.SETTING, self.tr(
-                'Settings'), NavigationItemPosition.BOTTOM)
+            self.addSubInterface(self.taskInterface, FIF.CHECKBOX, self.tr("Task"))
+            self.addSubInterface(
+                self.settingInterface,
+                FIF.SETTING,
+                self.tr("Settings"),
+                NavigationItemPosition.BOTTOM,
+            )
 
     def initWindow(self):
         self.resize(960, 780)
         self.setMinimumWidth(760)
-        self.setWindowIcon(QIcon(':/gallery/images/logo.png'))
-        self.setWindowTitle('PyQt-MAA')
+        self.setWindowIcon(QIcon(":/gallery/images/logo.png"))
+        self.setWindowTitle("PyQt-MAA")
 
         self.setMicaEffectEnabled(cfg.get(cfg.micaEnabled))
 
@@ -81,13 +92,13 @@ class MainWindow(FluentWindow):
 
         desktop = QApplication.screens()[0].availableGeometry()
         w, h = desktop.width(), desktop.height()
-        self.move(w//2 - self.width()//2, h//2 - self.height()//2)
+        self.move(w // 2 - self.width() // 2, h // 2 - self.height() // 2)
         self.show()
         QApplication.processEvents()
 
     def resizeEvent(self, e):
         super().resizeEvent(e)
-        if hasattr(self, 'splashScreen'):
+        if hasattr(self, "splashScreen"):
             self.splashScreen.resize(self.size())
 
     def closeEvent(self, e):
@@ -100,5 +111,7 @@ class MainWindow(FluentWindow):
 
         # retry
         if self.isMicaEffectEnabled():
-            QTimer.singleShot(100, lambda: self.windowEffect.setMicaEffect(
-                self.winId(), isDarkTheme()))
+            QTimer.singleShot(
+                100,
+                lambda: self.windowEffect.setMicaEffect(self.winId(), isDarkTheme()),
+            )

@@ -1,6 +1,12 @@
 from PyQt6.QtCore import QSize
-from PyQt6.QtWidgets import (QSizePolicy, QVBoxLayout, QHBoxLayout,
-                             QGridLayout, QFrame, QAbstractItemView)
+from PyQt6.QtWidgets import (
+    QSizePolicy,
+    QVBoxLayout,
+    QHBoxLayout,
+    QGridLayout,
+    QFrame,
+    QAbstractItemView,
+)
 from qfluentwidgets import PushButton, BodyLabel, ComboBox, TextEdit
 from ..components.listwidge_menu_draggable import ListWidge_Menu_Draggable
 
@@ -17,12 +23,12 @@ class Ui_Task_Interface(object):
 
         self.LD1_layout = QHBoxLayout()
         self.S2_Button = PushButton(Task_Interface)
-        self.S2_Button.setObjectName('S2_Button')
-        self.S2_Button.setText('开始')
+        self.S2_Button.setObjectName("S2_Button")
+        self.S2_Button.setText("开始")
         self.Finish_Title = BodyLabel(Task_Interface)
-        self.Finish_Title.setObjectName('Finish_Title')
-        self.Finish_Title.setText('完成后操作')
-        self.Finish_Title.setProperty('pixelFontSize', 14)
+        self.Finish_Title.setObjectName("Finish_Title")
+        self.Finish_Title.setText("完成后操作")
+        self.Finish_Title.setProperty("pixelFontSize", 14)
 
         self.LD1_layout.addWidget(self.S2_Button)
         self.LD1_layout.addWidget(self.Finish_Title)
@@ -32,22 +38,24 @@ class Ui_Task_Interface(object):
         self.Resource_Title = BodyLabel(Task_Interface)
         self.Control_Title = BodyLabel(Task_Interface)
         self.AutoDetect_Button = PushButton(Task_Interface)
-        self.Resource_Title.setObjectName('Resource_Title')
-        self.Control_Title.setObjectName('Control_Title')
-        self.AutoDetect_Button.setObjectName('AutoDetect_Button')
+        self.Resource_Title.setObjectName("Resource_Title")
+        self.Control_Title.setObjectName("Control_Title")
+        self.AutoDetect_Button.setObjectName("AutoDetect_Button")
 
-        self.Resource_Title.setText('资源')
-        self.Control_Title.setText('控制端')
-        self.AutoDetect_Button.setText('自动检测')
+        self.Resource_Title.setText("资源")
+        self.Control_Title.setText("控制端")
+        self.AutoDetect_Button.setText("自动检测")
 
-        self.Resource_Title.setProperty('pixelFontSize', 14)
-        self.Control_Title.setProperty('pixelFontSize', 14)
-        self.AutoDetect_Button.setProperty('pixelFontSize', 14)
+        self.Resource_Title.setProperty("pixelFontSize", 14)
+        self.Control_Title.setProperty("pixelFontSize", 14)
+        self.AutoDetect_Button.setProperty("pixelFontSize", 14)
 
         self.Resource_Title.setSizePolicy(
-            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+        )
         self.Control_Title.setSizePolicy(
-            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+        )
         self.Resource_Title.setMinimumSize(0, 33)
         self.Control_Title.setMinimumSize(0, 33)
 
@@ -67,10 +75,10 @@ class Ui_Task_Interface(object):
         self.Autodetect_combox = ComboBox(Task_Interface)
         self.Finish_combox = ComboBox(Task_Interface)
 
-        self.Resource_Combox.setObjectName('Resource_Combox')
-        self.Control_Combox.setObjectName('Control_Combox')
-        self.Autodetect_combox.setObjectName('Autodetect_combox')
-        self.Finish_combox.setObjectName('Finish_combox')
+        self.Resource_Combox.setObjectName("Resource_Combox")
+        self.Control_Combox.setObjectName("Control_Combox")
+        self.Autodetect_combox.setObjectName("Autodetect_combox")
+        self.Finish_combox.setObjectName("Finish_combox")
 
         self.Resource_Combox.setPlaceholderText("选择资源")
         self.Control_Combox.setPlaceholderText("选择控制端")
@@ -96,15 +104,15 @@ class Ui_Task_Interface(object):
         self.TaskName_Title_3 = BodyLabel(Task_Interface)
         self.TaskName_Title_4 = BodyLabel(Task_Interface)
 
-        self.TaskName_Title_1.setObjectName('TaskName_Title_1')
-        self.TaskName_Title_2.setObjectName('TaskName_Title_2')
-        self.TaskName_Title_3.setObjectName('TaskName_Title_3')
-        self.TaskName_Title_4.setObjectName('TaskName_Title_4')
+        self.TaskName_Title_1.setObjectName("TaskName_Title_1")
+        self.TaskName_Title_2.setObjectName("TaskName_Title_2")
+        self.TaskName_Title_3.setObjectName("TaskName_Title_3")
+        self.TaskName_Title_4.setObjectName("TaskName_Title_4")
 
-        self.TaskName_Title_1.setText('任务')
-        self.TaskName_Title_2.setText('任务')
-        self.TaskName_Title_3.setText('任务')
-        self.TaskName_Title_4.setText('任务')
+        self.TaskName_Title_1.setText("任务")
+        self.TaskName_Title_2.setText("任务")
+        self.TaskName_Title_3.setText("任务")
+        self.TaskName_Title_4.setText("任务")
 
         self.SelectTask_Combox_1 = ComboBox(Task_Interface)
         self.SelectTask_Combox_2 = ComboBox(Task_Interface)
@@ -116,15 +124,15 @@ class Ui_Task_Interface(object):
         self.Delete_Button = PushButton(Task_Interface)
         self.AddTask_Button = PushButton(Task_Interface)
 
-        self.MoveUp_Button.setObjectName('MoveUp_Button')
-        self.MoveDown_Button.setObjectName('MoveDown_Button')
-        self.Delete_Button.setObjectName('Delete_Button')
-        self.AddTask_Button.setObjectName('AddTask_Button')
+        self.MoveUp_Button.setObjectName("MoveUp_Button")
+        self.MoveDown_Button.setObjectName("MoveDown_Button")
+        self.Delete_Button.setObjectName("Delete_Button")
+        self.AddTask_Button.setObjectName("AddTask_Button")
 
-        self.MoveUp_Button.setText('上移')
-        self.MoveDown_Button.setText('下移')
-        self.Delete_Button.setText('删除')
-        self.AddTask_Button.setText('添加')
+        self.MoveUp_Button.setText("上移")
+        self.MoveDown_Button.setText("下移")
+        self.Delete_Button.setText("删除")
+        self.AddTask_Button.setText("添加")
         self.line = QFrame()
         self.line.setFrameShape(QFrame.Shape.HLine)
         self.line.setFrameShadow(QFrame.Shadow.Plain)
@@ -167,11 +175,10 @@ class Ui_Task_Interface(object):
         self.middle_layout = QVBoxLayout()
         self.Task_List = ListWidge_Menu_Draggable(Task_Interface)
         self.Task_List.setDragEnabled(True)
-        self.Task_List.setDragDropMode(
-            QAbstractItemView.DragDropMode.InternalMove)
+        self.Task_List.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
         self.Topic_Text = TextEdit(Task_Interface)
         self.Topic_Text.setReadOnly(True)
-        self.Topic_Text.setObjectName('Topic_Text')
+        self.Topic_Text.setObjectName("Topic_Text")
 
         self.middle_layout.addWidget(self.Task_List)
         self.middle_layout.addWidget(self.Topic_Text)
@@ -180,7 +187,7 @@ class Ui_Task_Interface(object):
         self.right_layout = QVBoxLayout()
         self.TaskOutput_Text = TextEdit(Task_Interface)
         self.TaskOutput_Text.setReadOnly(True)
-        self.TaskOutput_Text.setObjectName('TaskOutput_Text')
+        self.TaskOutput_Text.setObjectName("TaskOutput_Text")
         self.right_layout.addWidget(self.TaskOutput_Text)
 
         # 将子布局添加到主布局中

@@ -1,5 +1,6 @@
-# coding:utf-8
-from qfluentwidgets import (SettingCardGroup, ScrollArea, ExpandLayout)
+import os
+
+from qfluentwidgets import SettingCardGroup, ScrollArea, ExpandLayout
 from qfluentwidgets import FluentIcon as FIF
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QWidget, QLabel
@@ -9,11 +10,10 @@ from ..components.line_edit_card import LineEditCard
 from ..components.combobox_setting_card_custom import ComboBoxSettingCardCustom
 from ..components.switch_setting_card_custom import SwitchSettingCardCustom
 from ..utils.tool import Read_Config, Save_Config
-import os
 
 
 class CustomSettingInterface(ScrollArea):
-    """ Setting interface """
+    """Setting interface"""
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -24,7 +24,8 @@ class CustomSettingInterface(ScrollArea):
         self.settingLabel = QLabel(self.tr("Custom Settings"), self)
 
         self.CustomSettingGroup = SettingCardGroup(
-            self.tr("Setting"), self.scrollWidget)
+            self.tr("Setting"), self.scrollWidget
+        )
 
         if os.path.exists(os.path.join(os.getcwd(), "config", "custom.json")):
             self.config_init()
@@ -33,16 +34,15 @@ class CustomSettingInterface(ScrollArea):
 
     def __initWidget(self):
         self.resize(1000, 800)
-        self.setHorizontalScrollBarPolicy(
-            Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setViewportMargins(0, 80, 0, 20)
         self.setWidget(self.scrollWidget)
         self.setWidgetResizable(True)
-        self.setObjectName('customsettingInterface')
+        self.setObjectName("customsettingInterface")
 
         # initialize style sheet
-        self.scrollWidget.setObjectName('scrollWidget')
-        self.settingLabel.setObjectName('settingLabel')
+        self.scrollWidget.setObjectName("scrollWidget")
+        self.settingLabel.setObjectName("settingLabel")
         StyleSheet.SETTING_INTERFACE.apply(self)
 
         # initialize layout
@@ -63,15 +63,15 @@ class CustomSettingInterface(ScrollArea):
                 content=dict["text"]["content"],
                 texts=dict["optioncontent"],
                 target=dict["optionname"],
-                parent=self.CustomSettingGroup
+                parent=self.CustomSettingGroup,
             )
             self.CustomSettingGroup.addSettingCard(self.combox)
 
         elif dict["optiontype"] == "lineedit":
             try:
                 text = Read_Config(
-                    os.path.join(os.getcwd(), "config",
-                                 "custom_config.json"))[dict["optionname"]]
+                    os.path.join(os.getcwd(), "config", "custom_config.json")
+                )[dict["optionname"]]
             except FileNotFoundError:
                 text = ""
             self.lineedit = LineEditCard(
@@ -81,7 +81,7 @@ class CustomSettingInterface(ScrollArea):
                 content=dict["text"]["content"],
                 parent=self.CustomSettingGroup,
                 target=dict["optionname"],
-                custom=False
+                custom=False,
             )
             self.CustomSettingGroup.addSettingCard(self.lineedit)
 
@@ -91,7 +91,7 @@ class CustomSettingInterface(ScrollArea):
                 title=dict["text"]["title"],
                 content=dict["text"]["content"],
                 target=dict["optionname"],
-                parent=self.CustomSettingGroup
+                parent=self.CustomSettingGroup,
             )
             self.CustomSettingGroup.addSettingCard(self.Switch)
 
