@@ -11,12 +11,12 @@ from qfluentwidgets import (
     OptionsValidator,
     RangeConfigItem,
     RangeValidator,
-    FolderListValidator,
     Theme,
     FolderValidator,
     ConfigSerializer,
     __version__,
 )
+import os
 
 
 class Language(Enum):
@@ -45,8 +45,25 @@ def isWin11():
 class Config(QConfig):
     """Config of application"""
 
+    # MAA路径
+    Maa_config = ConfigItem(
+        "Maa", "Maa_config", os.path.join(os.getcwd(), "config", "maa_pi_config.json")
+    )
+    Maa_interface = ConfigItem(
+        "Maa",
+        "Maa_interface",
+        os.path.join(os.getcwd(), "interface.json"),
+    )
+    Maa_resource = ConfigItem(
+        "Maa", "Maa_resource", os.path.join(os.getcwd(), "resource"), FolderValidator()
+    )
+    maa_dev = ConfigItem(
+        "Maa", "maa_dev", os.path.join(os.getcwd(), "config", "maa_option.json")
+    )
+
     # main window
     micaEnabled = ConfigItem("MainWindow", "MicaEnabled", isWin11(), BoolValidator())
+
     dpiScale = OptionsConfigItem(
         "MainWindow",
         "DpiScale",
@@ -54,6 +71,7 @@ class Config(QConfig):
         OptionsValidator([1, 1.25, 1.5, 1.75, 2, "Auto"]),
         restart=True,
     )
+
     language = OptionsConfigItem(
         "MainWindow",
         "Language",
