@@ -2,12 +2,13 @@ import os
 import json
 import psutil
 import socket
+import re
 
 
 def Read_Config(paths):
     # 打开json并传入MAA_data
     if os.path.exists(paths):
-        with open(paths, "r", encoding='utf-8') as MAA_Config:
+        with open(paths, "r", encoding="utf-8") as MAA_Config:
             MAA_data = json.load(MAA_Config)
             return MAA_data
     else:
@@ -16,7 +17,7 @@ def Read_Config(paths):
 
 def Save_Config(paths, data):
     # 打开json并写入data内数据
-    with open(paths, "w", encoding='utf-8') as MAA_Config:
+    with open(paths, "w", encoding="utf-8") as MAA_Config:
         json.dump(data, MAA_Config, indent=4, ensure_ascii=False)
 
 
@@ -24,9 +25,11 @@ def gui_init(resource_Path, maa_pi_config_Path, interface_Path):
     if not os.path.exists(resource_Path):
         return False
 
-    elif (os.path.exists(resource_Path)
-          and os.path.exists(maa_pi_config_Path)
-          and os.path.exists(interface_Path)):
+    elif (
+        os.path.exists(resource_Path)
+        and os.path.exists(maa_pi_config_Path)
+        and os.path.exists(interface_Path)
+    ):
         # 获取初始resource序号
         Add_Resource_Type_Select_Values = []
         for a in Read_Config(interface_Path)["resource"]:
@@ -59,10 +62,12 @@ def gui_init(resource_Path, maa_pi_config_Path, interface_Path):
         init_ADB_Address = Read_Config(maa_pi_config_Path)["adb"]["address"]
         init_Resource_Type = Resource_count
         init_Controller_Type = Controller_count
-        return_init = {"init_ADB_Path": init_ADB_Path,
-                       "init_ADB_Address": init_ADB_Address,
-                       "init_Resource_Type": init_Resource_Type,
-                       "init_Controller_Type": init_Controller_Type}
+        return_init = {
+            "init_ADB_Path": init_ADB_Path,
+            "init_ADB_Address": init_ADB_Address,
+            "init_Resource_Type": init_Resource_Type,
+            "init_Controller_Type": init_Controller_Type,
+        }
         return return_init
 
 
@@ -86,10 +91,10 @@ def Get_Values_list_Option(path, key1):
     List = []
     for i in Read_Config(path)[key1]:
         if i["option"] != []:
-            Option_text = str(i["name"])+" "
+            Option_text = str(i["name"]) + " "
             Option_Lens = len(i["option"])
             for t in range(0, Option_Lens, 1):
-                Option_text += str(i["option"][t]["value"])+" "
+                Option_text += str(i["option"][t]["value"]) + " "
             List.append(Option_text)
         else:
             List.append(i["name"])
@@ -100,9 +105,10 @@ def Get_Task_List(target):
     # 输入option名称来输出一个包含所有该option中所有cases的name列表
     # 具体逻辑为 interface.json文件/option键/选项名称/cases键/键为空,所以通过len计算长度来选择最后一个/name键
     lists = []
-    Task_Config = Read_Config(os.path.join(os.getcwd(), "interface.json"))[
-        "option"][target]["cases"]
-    Lens = len(Task_Config)-1
+    Task_Config = Read_Config(os.path.join(os.getcwd(), "interface.json"))["option"][
+        target
+    ]["cases"]
+    Lens = len(Task_Config) - 1
     for i in range(Lens, -1, -1):
         lists.append(Task_Config[i]["name"])
     return lists
@@ -143,15 +149,16 @@ def check_port(port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             # 尝试连接到127.0.0.1的指定端口
-            result = s.connect_ex(('127.0.0.1', p))
+            result = s.connect_ex(("127.0.0.1", p))
             # 如果connect_ex返回0，表示连接成功，即端口开启
             if result == 0:
-                port_result.append("127.0.0.1:"+str(p))
+                port_result.append("127.0.0.1:" + str(p))
         except socket.error:
             pass
         finally:
             s.close()
     return port_result
+
 
 def check_path_for_keyword(path):
     keywords_list = ["MuMu", "BlueStacks", "LDPlayer", "Nox", "MEmu", "ADV"]
@@ -160,3 +167,18 @@ def check_path_for_keyword(path):
             return keyword
     return "emulator"
 
+
+def check_adb_path(adb_data):
+    if (
+        adb_data["adb_path"] == ""  # 路径为空
+        or adb_data["address"] == ""  # 地址为空
+        or (
+            ("adb" not in adb_data["adb_path"]) and ("ADB" not in adb_data["adb_path"])
+        )  # 路径中不包含adb关键字
+        or not re.match(
+            r"^(\d{1,3}\.){3}\d{1,3}:\d{1,5}$", adb_data["address"]
+        )  # 地址格式不正确
+    ):
+        return True  # 路径或地址不正确
+    else:
+        return False  # 路径或地址正确
