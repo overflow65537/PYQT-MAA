@@ -1,8 +1,8 @@
 import os
 
 from typing import Union
-from PyQt6.QtCore import pyqtSignal, Qt
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtGui import QIcon, QIntValidator
 from qfluentwidgets import SettingCard, FluentIconBase, LineEdit
 from ..utils.tool import Read_Config, Save_Config
 
@@ -38,6 +38,7 @@ class LineEditCard(SettingCard):
         if custom:
             self.lineEdit.setFixedWidth(118)
             self.lineEdit.setMinimumWidth(118)
+            self.lineEdit.setValidator(QIntValidator())
         else:
             self.lineEdit.textChanged.connect(self.__ontextChanged)
 
