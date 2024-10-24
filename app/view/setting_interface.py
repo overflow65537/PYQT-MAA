@@ -273,3 +273,7 @@ class SettingInterface(ScrollArea):
         data = Read_Config(cfg.get(cfg.Maa_config))
         data["save_draw"] = state
         Save_Config(cfg.get(cfg.Maa_config), data)
+
+    def update_adb(self, msg):
+        self.ADBPath.contentLabel.setText(msg["path"])
+        self.ADBPort.lineEdit.setText(msg["port"].split(":")[1])

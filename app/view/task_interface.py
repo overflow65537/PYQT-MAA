@@ -11,6 +11,7 @@ from ..view.UI_task_interface import Ui_Task_Interface
 from ..view.setting_interface import SettingInterface
 from ..logic.notification import MyNotificationHandler
 from ..logic.auto_detect_ADB_Thread import AutoDetectADBThread
+from ..common.signal_bus import signalBus
 from ..utils.tool import (
     Get_Values_list_Option,
     Get_Values_list,
@@ -31,7 +32,6 @@ class TaskInterface(Ui_Task_Interface, QWidget):
         super().__init__(parent=parent)
         self.setupUi(self)
 
-        # 资源文件位置
         # 初始化组件
         self._auto_detect_adb_thread = AutoDetectADBThread(self)
         self.MyNotificationHandler = MyNotificationHandler(self)
@@ -57,7 +57,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
 
         # 绑定信号
         self.MyNotificationHandler.callbackSignal.callback.connect(self.change_output)
-        self._auto_detect_adb_thread.signal.adb_detected.connect(self.On_ADB_Detected)
+        self._auto_detect_adb_thread.signal.connect(self.On_ADB_Detected)
         self.AddTask_Button.clicked.connect(self.Add_Task)
         self.Delete_Button.clicked.connect(self.Delete_Task)
         self.MoveUp_Button.clicked.connect(self.Move_Up)
@@ -92,11 +92,11 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             self.Resource_Combox.setCurrentIndex(return_init["init_Resource_Type"])
             self.Control_Combox.setCurrentIndex(return_init["init_Controller_Type"])
             adb_data = Read_Config(maa_pi_config_Path)["adb"]
-            if check_adb_path(adb_data):
+            if check_adb_path(adb_data):  # adb数据不存在
                 self.Start_ADB_Detection()
-            else:
+            else:  # adb数据存在
                 self.Autodetect_combox.addItem(
-                    f'{check_path_for_keyword(Read_Config(maa_pi_config_Path)["adb"]["adb_path"])} ({Read_Config(maa_pi_config_Path)["adb"]["address"]})'
+                    f'{check_path_for_keyword(adb_data["adb_path"])} ({adb_data["address"]})'
                 )
 
         # 配置文件不完全存在
@@ -371,18 +371,16 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             self.Autodetect_combox.addItems(processed_list)
 
     def Save_ADB_Config(self):
+
         target = self.Autodetect_combox.text()
         for i in emu_data:
             if i["name"] == target:
                 result = i
 
-        self.settingInterface = SettingInterface(self)
-
         port_data = Read_Config(
             os.path.join(os.getcwd(), "config", "maa_pi_config.json")
         )
         port_data["adb"]["adb_path"] = result["path"]
-        self.settingInterface.ADBPath.setContent(result["path"])
 
         Save_Config(
             os.path.join(os.getcwd(), "config", "maa_pi_config.json"), port_data
@@ -391,8 +389,12 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             os.path.join(os.getcwd(), "config", "maa_pi_config.json")
         )
         path_data["adb"]["address"] = result["port"]
-        self.settingInterface.ADBPort.setContent(result["port"])
+
+        SettingInterface(self).update()
+        print(result["port"].split(":")[1])
 
         Save_Config(
             os.path.join(os.getcwd(), "config", "maa_pi_config.json"), path_data
         )
+        signalBus.update_adb.connect(SettingInterface(self).update_adb)
+        signalBus.update_adb.emit(result)
