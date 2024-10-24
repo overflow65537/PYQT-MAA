@@ -5,8 +5,6 @@ from qfluentwidgets import (
     SettingCardGroup,
     SwitchSettingCard,
     OptionsSettingCard,
-    PushSettingCard,
-    HyperlinkCard,
     PrimaryPushSettingCard,
     ScrollArea,
     ComboBoxSettingCard,
