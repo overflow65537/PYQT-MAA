@@ -16,6 +16,7 @@ from qfluentwidgets import FluentIcon as FIF
 from .setting_interface import SettingInterface
 from .task_interface import TaskInterface
 from .custom_setting_interface import CustomSettingInterface
+from .scheduled_interface import ScheduledInterface
 from ..common.config import cfg
 from ..common.signal_bus import signalBus
 from ..common import resource
@@ -33,6 +34,7 @@ class MainWindow(FluentWindow):
         # create sub interface
         self.taskInterface = TaskInterface(self)
         self.settingInterface = SettingInterface(self)
+        self.scheduledInterface = ScheduledInterface(self)
         self.customsettingInterface = CustomSettingInterface(self)
 
         # enable acrylic effect
@@ -63,6 +65,9 @@ class MainWindow(FluentWindow):
                 self.customsettingInterface, FIF.IOT, self.tr("Custom Setting")
             )
             self.addSubInterface(
+                self.scheduledInterface, FIF.CALENDAR, self.tr("Scheduled Task")
+            )
+            self.addSubInterface(
                 self.settingInterface,
                 FIF.SETTING,
                 self.tr("Settings"),
@@ -70,6 +75,9 @@ class MainWindow(FluentWindow):
             )
         else:
             self.addSubInterface(self.taskInterface, FIF.CHECKBOX, self.tr("Task"))
+            self.addSubInterface(
+                self.scheduledInterface, FIF.CALENDAR, self.tr("Scheduled Task")
+            )
             self.addSubInterface(
                 self.settingInterface,
                 FIF.SETTING,
