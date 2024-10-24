@@ -1,11 +1,10 @@
 import os
+import re
 
 from qfluentwidgets import (
     SettingCardGroup,
     SwitchSettingCard,
     OptionsSettingCard,
-    PushSettingCard,
-    HyperlinkCard,
     PrimaryPushSettingCard,
     ScrollArea,
     ComboBoxSettingCard,
@@ -50,7 +49,11 @@ class SettingInterface(ScrollArea):
 
         if os.path.exists(cfg.get(cfg.Maa_config)):
             pi_config = Read_Config(cfg.get(cfg.Maa_config))
-            Port_data = pi_config["adb"]["address"].split(":")[1]
+            address_data = pi_config["adb"]["address"]
+            if re.match(r"^(\d{1,3}\.){3}\d{1,3}:\d{1,5}$", address_data):
+                Port_data = address_data.split(":")[1]
+            else:
+                Port_data = "0"
             path_data = pi_config["adb"]["adb_path"]
         else:
             Port_data = "0"
@@ -270,3 +273,7 @@ class SettingInterface(ScrollArea):
         data = Read_Config(cfg.get(cfg.Maa_config))
         data["save_draw"] = state
         Save_Config(cfg.get(cfg.Maa_config), data)
+
+    def update_adb(self, msg):
+        self.ADBPath.contentLabel.setText(msg["path"])
+        self.ADBPort.lineEdit.setText(msg["port"].split(":")[1])

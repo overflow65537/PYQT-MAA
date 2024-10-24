@@ -1,4 +1,5 @@
-from PyQt6.QtCore import QThread, pyqtSignal, QObject
+from PyQt6.QtCore import QThread
+from ..common.signal_bus import signalBus
 from ..utils.tool import (
     Read_Config,
     find_process_by_name,
@@ -8,15 +9,10 @@ from ..utils.tool import (
 import os
 
 
-class AutoDetectADBSignal(QObject):
-    # 检测ADB任务的信号,传回list
-    adb_detected = pyqtSignal(list)
-
-
 class AutoDetectADBThread(QThread):
     def __init__(self, parent=None):
         super(AutoDetectADBThread, self).__init__(parent)
-        self.signal = AutoDetectADBSignal()  # 创建信号对象
+        self.signal = signalBus.adb_detected  # 创建信号对象
 
     def run(self):
         emulator_result = []
@@ -51,7 +47,7 @@ class AutoDetectADBThread(QThread):
                         )
 
         if emulator_result:
-            self.signal.adb_detected.emit(emulator_result)
+            self.signal.emit(emulator_result)
         else:
             None_ADB_data = []
-            self.signal.adb_detected.emit(None_ADB_data)
+            self.signal.emit(None_ADB_data)

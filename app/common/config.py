@@ -55,7 +55,7 @@ class Config(QConfig):
         os.path.join(os.getcwd(), "interface.json"),
     )
     Maa_resource = ConfigItem(
-        "Maa", "Maa_resource", os.path.join(os.getcwd(), "resource"), FolderValidator()
+        "Maa", "Maa_resource", os.path.join(os.getcwd(), "resource")
     )
     maa_dev = ConfigItem(
         "Maa", "maa_dev", os.path.join(os.getcwd(), "config", "maa_option.json")
