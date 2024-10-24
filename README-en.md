@@ -55,10 +55,6 @@
 
 ## License
 **PyQt-MAA** is licensed under **[GPL-3.0 License](./LICENSE)**.
->[!WARNING]
-It should be noted that some open source projects that **PyQt-MAA** relies on are open sourced under **dual licenses**.\
-For personal non-commercial use, you need to comply with the **[GPL-3.0 License]((./LICENSE))** ; for commercial use, you need to purchase a commercial license from the relevant developer.\
-For details, see **[PyQt6 Commercial Use](https://www.qt.io/qt-licensing)** and **[PyQt-Fluent-Widgets Commercial License](https://github.com/zhiyiYo/PyQt-Fluent-Widgets?tab=readme-ov-file#license)**.
 
 ## Acknowledgments
 ### Open Source Libraries
