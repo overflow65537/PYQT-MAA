@@ -341,6 +341,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
     def On_ADB_Detected(self, emu):
         global emu_data
         emu_data = emu
+
         if emu == []:
             InfoBar.error(
                 title="错误",
@@ -366,6 +367,7 @@ class TaskInterface(Ui_Task_Interface, QWidget):
                 duration=2000,
                 parent=self,
             )
+            self.Autodetect_combox.clear()
             self.Autodetect_combox.addItems(processed_list)
 
     def Save_ADB_Config(self):
