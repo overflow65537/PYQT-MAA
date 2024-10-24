@@ -1,4 +1,5 @@
 import os
+import re
 import threading
 
 from maa.toolkit import Toolkit
@@ -90,7 +91,13 @@ class TaskInterface(Ui_Task_Interface, QWidget):
             return_init = gui_init(resource_Path, maa_pi_config_Path, interface_Path)
             self.Resource_Combox.setCurrentIndex(return_init["init_Resource_Type"])
             self.Control_Combox.setCurrentIndex(return_init["init_Controller_Type"])
-            if Read_Config(maa_pi_config_Path)["adb"]["adb_path"] == "":
+            adb_data = Read_Config(maa_pi_config_Path)["adb"]
+            if (
+                adb_data["adb_path"] == ""
+                or adb_data["address"] == ""
+                or "adb.exe" not in adb_data["adb_path"]
+                or not re.match(r"^(\d{1,3}\.){3}\d{1,3}:\d{1,5}$", adb_data["address"])
+            ):
                 self.Start_ADB_Detection()
             else:
                 self.Autodetect_combox.addItem(
