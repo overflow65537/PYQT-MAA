@@ -247,7 +247,7 @@ class TaskFlowRuntimeSnapshotTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaises(TaskFlowExecutionError):
                 await self.runner.run_tasks_flow()
 
-        self.runner.stop_task.assert_awaited_once_with()
+        self.runner.stop_task.assert_awaited_once_with(post_stop=False)
         self.assertFalse(self.runner._is_running)
         self.assertEqual("run_failed", telemetry[-1]["event"])
 
@@ -269,7 +269,7 @@ class TaskFlowRuntimeSnapshotTests(unittest.IsolatedAsyncioTestCase):
             with self.assertRaisesRegex(RuntimeError, "snapshot failed"):
                 await self.runner.run_tasks_flow()
 
-        self.runner.stop_task.assert_awaited_once_with()
+        self.runner.stop_task.assert_awaited_once_with(post_stop=False)
         self.assertFalse(self.runner._is_running)
         self.assertEqual("run_failed", telemetry[-1]["event"])
         self.assertEqual("snapshot failed", telemetry[-1].get("error"))
