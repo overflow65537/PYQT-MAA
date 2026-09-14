@@ -147,6 +147,11 @@ class TaskDragListWidget(BaseListWidget):
         self._fade_out.finished.connect(self._on_fade_out_finished)
         self._fade_in.finished.connect(self._on_fade_in_finished)
         self._pending_refresh = False
+        # 资源/控制器变更触发列表刷新后，恢复对应任务的选中态
+        self._pending_restore_item_id: str | None = None
+        self._list_render_generation: int = 0
+        # 刷新渲染期间抑制选中通知，避免中途落到 resource 再被 restore 拉回
+        self._suppress_selection_notify: bool = False
 
         # 维护 task_id -> widget 的映射，避免重复遍历列表
         self._task_widgets: dict[str, TaskListItem] = {}
@@ -190,7 +195,15 @@ class TaskDragListWidget(BaseListWidget):
         self.update_list()
 
     def _on_item_selected_to_service(self, item_id: str):
+        if self._suppress_selection_notify or self._loading_tasks:
+            return
         self.service_coordinator.select_task(item_id)
+
+    def _on_item_selected(self, current, previous):
+        """选中项变化时发出 item_id 信号；刷新渲染期间忽略，防止中途切到 resource。"""
+        if self._suppress_selection_notify or self._loading_tasks:
+            return
+        super()._on_item_selected(current, previous)
 
     def _should_include(self, task: TaskItem) -> bool:
         """判断任务是否应显示在当前列表。
@@ -502,6 +515,11 @@ class TaskDragListWidget(BaseListWidget):
         """当选项变化时，更新任务列表显示"""
         # 资源或控制器变化时，刷新任务列表（会重新计算 is_hidden）
         if "resource" in options or "controller_type" in options:
+            # 同 payload 含两者时控制器优先（换控制器可能顺带改兼容资源）
+            if "controller_type" in options:
+                self._pending_restore_item_id = _CONTROLLER_
+            else:
+                self._pending_restore_item_id = _RESOURCE_
             self.update_list()
         else:
             # 其他选项变化时，更新所有 TaskListItem 的选项显示
@@ -534,6 +552,9 @@ class TaskDragListWidget(BaseListWidget):
         """刷新任务列表UI（先显示骨架占位，再逐项渲染）"""
         self._stop_drag_scroll()
         self._stop_reorder_animation()
+        # 整段重建期间屏蔽选中信号，避免逐项变可选时短暂选中 resource
+        self._suppress_selection_notify = True
+        self.blockSignals(True)
         self.clear()
         self.setCurrentRow(-1)
         self._task_widgets.clear()
@@ -544,11 +565,55 @@ class TaskDragListWidget(BaseListWidget):
         self._pending_tasks = task_list
         self._render_index = 0
         self._loading_tasks = bool(task_list)
+        self._list_render_generation += 1
+        render_generation = self._list_render_generation
         self._add_task_skeletons(len(task_list))
         if self._pending_tasks:
-            QTimer.singleShot(5, self._render_pending_task)
+            QTimer.singleShot(
+                5, lambda: self._render_pending_task(render_generation)
+            )
         else:
             self._loading_tasks = False
+            self._restore_pending_selection()
+
+    def _restore_pending_selection(self) -> None:
+        """列表刷新完成后，恢复控制器/资源选中态。
+
+        服务层已是目标任务时仅恢复列表高亮，避免重复 select_task 触发
+        options_loaded 重建右侧面板。
+        """
+        item_id = self._pending_restore_item_id
+        self._pending_restore_item_id = None
+        self._loading_tasks = False
+
+        target_item = None
+        if item_id:
+            for i in range(self.count()):
+                li = self.item(i)
+                widget = self.itemWidget(li)
+                if (
+                    widget
+                    and isinstance(widget, TaskListItem)
+                    and widget.item.item_id == item_id
+                ):
+                    target_item = li
+                    break
+
+        current_task_id = self.service_coordinator.options.current_task_id
+        if target_item is not None and current_task_id == item_id:
+            # 仍保持屏蔽：只恢复高亮，不通知服务层
+            self.setCurrentItem(target_item)
+            self.scrollToItem(
+                target_item, QAbstractItemView.ScrollHint.PositionAtCenter
+            )
+            self.blockSignals(False)
+            self._suppress_selection_notify = False
+            return
+
+        self.blockSignals(False)
+        self._suppress_selection_notify = False
+        if target_item is not None and item_id:
+            self.select_item(item_id)
 
     def _add_task_skeletons(self, count: int):
         """根据任务数量先添加骨架占位，避免一次性渲染卡顿"""
@@ -561,18 +626,34 @@ class TaskDragListWidget(BaseListWidget):
             self.setItemWidget(list_item, skeleton)
             self._skeleton_items.append(list_item)
 
-    def _render_pending_task(self):
+    def _render_pending_task(self, render_generation: int):
         """逐项替换骨架为真实任务组件，确保 UI 不被阻塞"""
+        if render_generation != self._list_render_generation:
+            return
         if self._render_index >= len(self._pending_tasks):
-            self._loading_tasks = False
             self._pending_tasks = []
             self._skeleton_items.clear()
+            self._restore_pending_selection()
             return
 
         task = self._pending_tasks[self._render_index]
         self._render_task_at_index(self._render_index, task)
+        # 目标项一渲染完就先视觉选中（信号仍屏蔽），减少空白闪烁
+        if (
+            self._pending_restore_item_id
+            and task.item_id == self._pending_restore_item_id
+        ):
+            widget = self._task_widgets.get(task.item_id)
+            if widget is not None:
+                for i in range(self.count()):
+                    li = self.item(i)
+                    if self.itemWidget(li) is widget:
+                        self.setCurrentItem(li)
+                        break
         self._render_index += 1
-        QTimer.singleShot(5, self._render_pending_task)
+        QTimer.singleShot(
+            5, lambda: self._render_pending_task(render_generation)
+        )
 
     def _render_task_at_index(self, index: int, task: TaskItem):
         """将指定位置的骨架替换为实际的 `TaskListItem`"""
