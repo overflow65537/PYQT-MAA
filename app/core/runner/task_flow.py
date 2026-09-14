@@ -1402,8 +1402,14 @@ class TaskFlowRunner(QObject):
                     flow_error = post_action_error
 
             # stop_task() 会把 need_stop 置为 True；最终状态必须使用清理前的停止意图。
+            # 自然跑完跳过 post_stop，避免 MaaFramework release 构建假 ERR（#252）。
+            should_post_stop = (
+                was_manual_stop
+                or was_cancelled
+                or stop_requested_before_cleanup
+            )
             try:
-                await self.stop_task()
+                await self.stop_task(post_stop=should_post_stop)
             except Exception as cleanup_error:
                 logger.exception("任务流清理失败")
                 if flow_error is None:
@@ -2626,11 +2632,12 @@ class TaskFlowRunner(QObject):
         except Exception:
             pass
 
-    async def stop_task(self, *, manual: bool = False):
+    async def stop_task(self, *, manual: bool = False, post_stop: bool = True):
         """停止当前正在运行的任务
 
         Args:
             manual: 是否为"手动停止"（由用户或外部调用显式触发）。
+            post_stop: 是否向 Tasker 发送 post_stop。自然跑完应传 False。
         """
         if manual:
             # 在任何情况下都记录手动停止的意图，避免后续错误发送通知
@@ -2653,7 +2660,7 @@ class TaskFlowRunner(QObject):
         if self._is_connecting_device:
             logger.debug("设备仍在连接中，延后清理运行时")
             return
-        await self.maafw.stop_task()
+        await self.maafw.stop_task(post_stop=post_stop)
         self.runner_events.start_button_status.emit(
             {"text": "START", "status": "enabled"}
         )

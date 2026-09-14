@@ -1512,8 +1512,8 @@ class MaaFW(QObject):
         return request.wait().succeeded
 
     @asyncify
-    def stop_task(self):
-        self._cleanup_runtime()
+    def stop_task(self, *, post_stop: bool = True):
+        self._cleanup_runtime(post_stop=post_stop)
 
     def has_active_runtime(self) -> bool:
         with self._cleanup_condition:
@@ -1531,7 +1531,7 @@ class MaaFW(QObject):
 
     def force_shutdown(self) -> None:
         """同步强制清理 MaaFW 运行态，供应用退出阶段调用。"""
-        self._cleanup_runtime()
+        self._cleanup_runtime(post_stop=True)
 
     def _wait_for_tasker_idle(self, tasker: Tasker) -> None:
         """等待 Tasker 完全停止，避免 CustomAction 回调仍在执行时触发原生析构。"""
@@ -1550,7 +1550,7 @@ class MaaFW(QObject):
             self.TASKER_IDLE_TIMEOUT_SECONDS,
         )
 
-    def _cleanup_runtime(self) -> None:
+    def _cleanup_runtime(self, *, post_stop: bool = True) -> None:
         # 重复 stop/shutdown 必须等待同一轮清理完成，不能提前向上层报告已停止。
         with self._cleanup_condition:
             if self._cleanup_in_progress:
@@ -1567,7 +1567,10 @@ class MaaFW(QObject):
 
                 if tasker is not None:
                     try:
-                        tasker.post_stop().wait()
+                        # 自然跑完时 run_task 已 inactive 控制器；再 post_stop 会在
+                        # release 构建下打出假 ERR（Tasker not inited / runner id not found）。
+                        if post_stop:
+                            tasker.post_stop().wait()
                         self._wait_for_tasker_idle(tasker)
                     except Exception as exc:
                         logger.error("停止任务失败: %s", exc)

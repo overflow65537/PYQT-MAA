@@ -184,6 +184,30 @@ class MaaFWLifecycleTests(unittest.TestCase):
         self.assertFalse(teardown_thread.is_alive())
         self.assertTrue(teardown_done.is_set())
 
+    def test_natural_finish_cleanup_skips_post_stop(self):
+        runtime = self._make_runtime()
+        post_stop_calls = []
+        runtime.tasker = SimpleNamespace(
+            post_stop=lambda: post_stop_calls.append(1) or _Pending(),
+            running=False,
+            stopping=False,
+        )
+        controller = _Controller()
+        resource = SimpleNamespace(clear=Mock())
+        runtime.controller = controller
+        runtime.resource = resource
+        runtime._teardown_agents = Mock()
+
+        runtime._cleanup_runtime(post_stop=False)
+
+        self.assertEqual([], post_stop_calls)
+        self.assertIsNone(runtime.tasker)
+        self.assertIsNone(runtime.controller)
+        self.assertIsNone(runtime.resource)
+        self.assertEqual(1, controller.inactive_calls)
+        resource.clear.assert_called_once_with()
+        runtime._teardown_agents.assert_called_once_with()
+
     def test_duplicate_cleanup_waits_and_does_not_clear_new_runtime(self):
         runtime = self._make_runtime()
         cleanup_started = threading.Event()
