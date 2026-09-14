@@ -89,21 +89,18 @@ class OptionWidget(QWidget, ResourceSettingMixin, PostActionSettingMixin, PreTas
         self.controller_type_mapping = self.controller_setting_widget.controller_type_mapping
         self.current_controller_label = self.controller_setting_widget.current_controller_label
 
-        # 设置控制器类型变化时的回调，用于更新资源下拉框
+        # 设置控制器类型变化时的回调，用于同步资源映射（不强制刷新资源页）
         def on_controller_type_changed(label, is_initializing=False):
-            """当控制器类型变化时，更新资源下拉框
+            """控制器类型变化时，同步资源映射表。
 
-            Args:
-                label: 控制器标签
-                is_initializing: 是否在初始化阶段（如果是，不触发任务列表更新）
+            资源兼容性已由 update_controller_selection 处理并随本次
+            option_updated 发出；控制器页不应再 fill/auto_save resource，
+            否则会覆盖控制器描述并触发二次列表刷新。
             """
-            # 更新资源 Mixin 的控制器标签
             self.current_controller_label = label
-            # 更新资源 Mixin 的控制器映射（以防有变化）
             self.controller_type_mapping = (
                 self.controller_setting_widget.controller_type_mapping
             )
-            # 重新构建资源映射表（确保使用最新的控制器信息）
             self._rebuild_resource_mapping()
 
             if label not in self.resource_mapping:
@@ -111,88 +108,20 @@ class OptionWidget(QWidget, ResourceSettingMixin, PostActionSettingMixin, PreTas
                     f"控制器 {label} 不在资源映射表中！可用的控制器: {list(self.resource_mapping.keys())}"
                 )
 
-            # 刷新资源下拉框（如果资源下拉框已创建）
+            if is_initializing:
+                return
+
+            # 仅在资源任务页同步下拉框；控制器页保持控制器描述与选中态
+            from app.common.constants import _CONTROLLER_
+
+            if self.service_coordinator.options.current_task_id == _CONTROLLER_:
+                return
+
             if (
-                "resource_combo"
-                in self.resource_setting_widgets
+                "resource_combo" in self.resource_setting_widgets
+                and hasattr(self, "_fill_resource_option")
             ):
-                if hasattr(self, "_fill_resource_option"):
-                    self._fill_resource_option()
-
-                    # 控制器类型变化后，强制保存一次资源设置（仅在非初始化时）
-                    if not is_initializing:
-                        current_resource = (
-                            self.current_config.get(
-                                "resource", ""
-                            )
-                        )
-                        if current_resource:
-                            self._auto_save_resource_option(
-                                current_resource, skip_sync_check=True
-                            )
-            else:
-                # 即使资源下拉框不存在，也需要更新资源任务的配置
-                # 检查当前资源是否在新控制器的资源列表中
-                if label in self.resource_mapping:
-                    current_resources = self.resource_mapping[
-                        label
-                    ]
-                    if current_resources:
-                        # 获取当前保存的资源
-                        from app.common.constants import _RESOURCE_
-
-                        resource_task = self.service_coordinator.tasks.get_task(
-                            _RESOURCE_
-                        )
-                        current_resource_name = ""
-                        if resource_task and isinstance(
-                            resource_task.task_option, dict
-                        ):
-                            current_resource_name = resource_task.task_option.get(
-                                "resource", ""
-                            )
-
-                        # 检查当前资源是否在新控制器的资源列表中
-                        resource_found = False
-                        for resource in current_resources:
-                            resource_name = resource.get("name", "")
-                            resource_label = resource.get("label", resource_name)
-                            if current_resource_name and current_resource_name in (
-                                resource_name,
-                                resource_label,
-                            ):
-                                resource_found = True
-                                break
-
-                        # 如果当前资源不在新控制器的资源列表中，自动选择第一个资源并保存（仅在非初始化时）
-                        if (
-                            not resource_found
-                            and current_resource_name
-                            and not is_initializing
-                        ):
-                            first_resource = current_resources[0]
-                            first_resource_name = first_resource.get("name", "")
-
-                            if resource_task:
-                                self._auto_save_resource_option(
-                                    first_resource_name,
-                                    skip_sync_check=True,
-                                )
-                            else:
-                                logger.warning(f"未找到 Resource 任务，无法保存资源")
-                        elif not is_initializing:
-                            # 即使资源没有变化，也要触发任务列表更新（确保任务列表根据当前资源正确显示）
-                            if resource_task and isinstance(
-                                resource_task.task_option, dict
-                            ):
-                                final_resource = resource_task.task_option.get(
-                                    "resource", ""
-                                )
-                                if final_resource:
-                                    self._auto_save_resource_option(
-                                        final_resource,
-                                        skip_sync_check=True,
-                                    )
+                self._fill_resource_option()
 
         # 将回调设置到控制器组件
         setattr(
